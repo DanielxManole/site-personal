@@ -56,7 +56,7 @@
                   Web & Cloud
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  {["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion", "Git / Github", "Cloudflare"].map(item => (
+                  {["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion", "Git / Github", "Vercel"].map(item => (
                     <span key={item} className="px-3 py-1 text-sm font-mono font-bold text-slate-700 border border-slate-600 bg-transparent hover:bg-slate-800 hover:text-white transition-colors cursor-default">
                       {item}
                     </span>
@@ -119,4 +119,5 @@
         </div>
       </section>
     );
+
   }
