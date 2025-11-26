@@ -15,7 +15,7 @@ const projectsData = [
     link: "https://grabcad.com/library/3d-cad-manole-daniel-1",
     hasSlideshow: true, 
     images: [
-      "/images/fusion2.jpg ",
+      "/images/fusion2.jpg",
       "/images/catia5.jpg",
       "/images/solidworks1.jpg",
       "/images/catia4.jpg",
@@ -332,4 +332,5 @@ export default function Projects() {
       </div>
     </section>
   );
+
 }
