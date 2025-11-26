@@ -7,7 +7,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 const projectsData = [
   {
     id: "01",
-    title: "PROIECTARE CAD 2D / 3D",
+    title: "PROIECTARE CAD\u00A02D\u00A0/\u00A03D",
     category: "// Industrial Design",
     description: "Colecție extinsă de ansambluri mecanice și piese complexe, completate de desene tehnice 2D de precizie. Demonstrează expertiză în design parametric și documentație de execuție folosind CATIA V5, Fusion 360, SolidWorks și AutoCAD.",
     tech: ["CATIA V5", "Fusion 360", "SolidWorks", "AutoCAD"],
@@ -334,4 +334,5 @@ export default function Projects() {
   );
 
 }
+
 
