@@ -82,10 +82,12 @@ export default function TechStack() {
                       key={item} 
                       onClick={() => handleSkillClick(item)} 
                       className={`
-                        px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
-                        transition-colors ease-out active:bg-slate-800 active:text-white
+                        touch-manipulation
                         
-                        /* TRUCUL DE VITEZĂ: Instant ON (75ms), Slow OFF (300ms) */
+                        active:scale-[0.95]
+                        px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
+                        transition-colors ease-out
+
                         ${isActive(item) ? 'duration-75' : 'duration-300'} 
 
                         ${isActive(item)
@@ -110,8 +112,9 @@ export default function TechStack() {
                       key={item} 
                       onClick={() => handleSkillClick(item)}
                       className={`
+                        touch-manipulation
                         px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
-                        transition-colors ease-out active:bg-slate-800 active:text-white
+                        transition-colors ease-out
 
                         ${isActive(item) ? 'duration-75' : 'duration-300'}
 
@@ -161,8 +164,9 @@ export default function TechStack() {
                         key={item} 
                         onClick={() => handleSkillClick(item)}
                         className={`
+                            touch-manipulation
                             px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
-                            transition-colors ease-out active:bg-orange-900 active:border-orange-900 active:text-white
+                            transition-colors ease-out
 
                             ${isActive(item) ? 'duration-75' : 'duration-300'}
 
@@ -188,8 +192,9 @@ export default function TechStack() {
                         key={item} 
                         onClick={() => handleSkillClick(item)}
                         className={`
+                            touch-manipulation
                             px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
-                            transition-colors ease-out active:bg-orange-900 active:border-orange-900 active:text-white
+                            transition-colors ease-out
                             
                             ${isActive(item) ? 'duration-75' : 'duration-300'}
 
