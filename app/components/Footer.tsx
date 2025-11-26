@@ -25,10 +25,10 @@ export default function Footer() {
           transform-gpu 
         ">
           
-          <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
 
           <h2 className="text-3xl md:text-5xl font-black text-slate-700 mb-6 tracking-tight select-none">
             CONTACT{'\u00A0'}& COLABORARE
@@ -77,4 +77,5 @@ export default function Footer() {
       </div>
     </footer>
   );
+
 }
