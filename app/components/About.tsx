@@ -8,10 +8,10 @@ export default function About() {
     <section id="despre" className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative">
       
       <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
-        <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
+        <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter transform-gpu">
           01_DESPRE
         </h2>
-        <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none">
+        <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none transform-gpu">
           // OPERATOR_PROFILE
         </span>
       </div>
@@ -48,7 +48,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 transform-gpu">
             <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
               <p className="text-[10px] font-mono text-slate-400 uppercase">Locație</p>
               <p className="text-sm font-bold text-slate-700">București, România</p>
@@ -83,7 +83,7 @@ export default function About() {
             <div className="relative">
               <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-[#e0e5ec]"></div>
               <h4 className="font-bold text-slate-800">Internship Departamentul Dezvoltare Produs</h4>
-              <p className="text-sm text-slate-500 font-mono">Saint-Gobain Sekurit | Iunie - August 2025</p>
+              <p className="text-sm text-slate-500 font-mono">Saint-Gobain Sekurit{'\u00A0'}| Iunie{'\u00A0'}{'\u2011'}{'\u00A0'}August{'\u00A0'}2025</p>
               <ul className="text-sm text-slate-600 mt-2 ml-4 list-disc space-y-1">
                 <li>Pregătirea și ajustarea sitelor de printare 2D pentru proiecte auto (Renault Master III, VW Touran II).</li>
                 <li>Dezvoltarea unui script Python pentru extragerea datelor critice privind controlul temperaturii și curburii sticlei.</li>
@@ -105,12 +105,12 @@ export default function About() {
                 <div className="relative">
                   <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-orange-400 border-4 border-[#e0e5ec]"></div>
                   <h4 className="font-bold text-slate-800">Facultatea de Inginerie Industrială și Robotică - UNSTPB</h4>
-                  <p className="text-sm text-slate-500 font-mono">Informatică Industrială | 2023 - Prezent</p>
+                  <p className="text-sm text-slate-500 font-mono">Informatică Industrială{'\u00A0'}| 2023{'\u00A0'}{'\u2011'}{'\u00A0'}Prezent</p>
                 </div>
                 <div className="relative">
                   <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-slate-400 border-4 border-[#e0e5ec]"></div>
                   <h4 className="font-bold text-slate-800">Colegiul Național Barbu Știrbei, Călărași</h4>
-                  <p className="text-sm text-slate-500 font-mono">Matematică-Informatică ‎ | 2019 - 2023</p>
+                  <p className="text-sm text-slate-500 font-mono">Matematică-Informatică{'\u00A0'}‎{'\u00A0'}| 2019{'\u00A0'}{'\u2011'}{'\u00A0'}2023</p>
                 </div>
               </div>
             </div>
