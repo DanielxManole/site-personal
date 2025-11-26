@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const projectsData = [
   {
     id: "01",
-    title: "CAD & PROIECTARE 3D",
+    title: "CAD & PROIECTARE\u00A03D",
     category: "// Industrial Design",
     description: "Colecție extinsă de ansambluri mecanice și piese complexe, completate de desene tehnice 2D de precizie. Demonstrează expertiză în design parametric și documentație de execuție folosind CATIA V5, Fusion 360, SolidWorks și AutoCAD.",
     tech: ["CATIA V5", "Fusion 360", "SolidWorks", "AutoCAD"],
@@ -45,10 +46,10 @@ const projectsData = [
   },
   {
     id: "02",
-    title: "CALCULATOR TOLERANȚE ISO",
+    title: "CALCULATOR TOLERANȚE\u00A0ISO",
     category: "// Python & Engineering",
     description: "Calculator pentru toleranțe și abateri dimensionale conform standardelor ISO, pentru arbori și alezaje, implementat în Python cu o interfață grafică simplă și intuitivă, realizată complet local, fără conexiune la internet.",
-    tech: ["Python 3.11", "Tkinter", "NumPy", "PyInstaller", "Git"],
+    tech: ["Python", "Tkinter", "NumPy", "PyInstaller", "Git / Github"],
     status: "V1.0 STABLE",
     link: "https://github.com/DanielxManole/ISOcalc",
     hasSlideshow: false, 
@@ -58,7 +59,7 @@ const projectsData = [
   },
   {
     id: "03",
-    title: "SISTEM MONITORIZARE ȘOFER",
+    title: "SISTEM MONITORIZARE",
     category: "// Embedded AI & Computer Vision",
     description: "Proiectul propune un sistem de siguranță auto (ADAS) bazat pe inteligență artificială și rețele neuronale convoluționale (CNN), folosit pentru a detecta somnolența șoferilor în timp real prin analiza clipitului și a expresiilor faciale.",
     tech: ["LabVIEW", "PyTorch", "OpenCV", "Raspberry Pi 4"],
@@ -120,7 +121,7 @@ const ProjectCard = ({ project }: { project: any }) => {
 
     const interval = setInterval(() => {
       if (!isAnimating) {
-         setCurrentIndex(prev => prev + 1);
+          setCurrentIndex(prev => prev + 1);
       }
     }, 2500);
 
@@ -247,7 +248,7 @@ const ProjectCard = ({ project }: { project: any }) => {
                 ))
               ) : (
                 <div className="min-w-full h-full relative">
-                   <Image 
+                    <Image 
                       src={project.images[0]} 
                       alt={project.title} 
                       fill 
@@ -279,14 +280,14 @@ const ProjectCard = ({ project }: { project: any }) => {
           </p>
           <div className="flex flex-wrap gap-2 transform-gpu">
             {project.tech.map((tech: string) => (
-              <span key={tech} className="text-xs font-bold text-slate-600 px-3 py-1 rounded-lg bg-[#e0e5ec] shadow-[inset_2px_2px_5px_#bec3c9,inset_-2px_-2px_5px_rgba(255,255,255,0.5)]">
+              <span key={tech} className="text-xs font-bold text-slate-600 px-3 py-1 rounded-lg bg-[#e0e5ec] shadow-[inset_2px_2px_5px_#bec3c9,inset_-2px_-2px_5px_rgba(255,255,255,0.5)] active:scale-[0.95]">
                 {tech}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="relative w-fit group/link select-none">
+        <div className="relative w-fit group/link select-none active:scale-[0.95]">
           <a href={project.link} target={project.link !== "#" ? "_blank" : "_self"} className="inline-flex items-center text-sm font-bold text-blue-600 transition-colors group-hover/link:text-blue-800">
             {getButtonText()}
             <span className="ml-1 transition-transform group-hover/link:translate-x-1 duration-500">→</span>
@@ -299,22 +300,35 @@ const ProjectCard = ({ project }: { project: any }) => {
 };
 
 export default function Projects() {
-  return (
-    <section id="proiecte" className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative transform-gpu">
-      
-      <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
-        <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
-          02_PROIECTE
-        </h2>
-        <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none">
-          // SYSTEM_MODULES
-        </span>
-      </div>
+  const { ref, isVisible } = useScrollReveal(0.4); 
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {projectsData.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
+  return (
+    <section 
+      id="proiecte" 
+      ref={ref}
+      className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative scroll-mt-20"
+    >
+      
+      <div className={`
+        transition-all duration-1000 md:duration-500 ease-out transform will-change-transform
+        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+      `}>
+
+        <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
+          <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
+            02_PROIECTE
+          </h2>
+          <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none">
+            // SYSTEM_MODULES
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {projectsData.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+
       </div>
     </section>
   );

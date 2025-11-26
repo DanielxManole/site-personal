@@ -7,10 +7,9 @@ export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
   
-  // Verificare Scroll
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > 400) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -21,7 +20,6 @@ export default function BackToTop() {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
-  // Urca sus
   const scrollToTop = () => {
     router.push("/");
     setTimeout(() => {
@@ -56,7 +54,6 @@ export default function BackToTop() {
       `}
       aria-label="Back to top"
     >
-      {/* Iconita */}
       <svg 
         xmlns="http://www.w3.org/2000/svg" 
         fill="none" 
@@ -65,9 +62,7 @@ export default function BackToTop() {
         stroke="currentColor" 
         className="w-6 h-6"
       >
-        {/* Plafon */}
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 3h16" />
-        {/* Sageata */}
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 21V6m0 0L5.25 12.75M12 6l6.75 6.75" />
       </svg>
     </button>
