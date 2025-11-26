@@ -2,9 +2,9 @@
 
   export default function TechStack() {
     return (
-      <section id="tehnologii" className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative">
+      <section id="tehnologii" className="**relative z-10 bg-[#e0e5ec]** min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto">
         
-        <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
+        <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4 transform-gpu">
           <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
             03_COMPETENȚE
           </h2>
@@ -15,7 +15,7 @@
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-sm h-full">
+          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
@@ -66,7 +66,7 @@
             </div>
           </div>
 
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-sm h-full">
+          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
@@ -119,5 +119,4 @@
         </div>
       </section>
     );
-
   }
