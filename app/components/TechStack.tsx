@@ -1,9 +1,43 @@
-  import React from 'react';
+"use client";
 
-  export default function TechStack() {
-    return (
-      <section id="tehnologii" className="**relative z-10 bg-[#e0e5ec]** min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto">
-        
+import React, { useState } from 'react'; 
+import { useScrollReveal } from '../hooks/useScrollReveal';
+
+export default function TechStack() {
+  const { ref, isVisible } = useScrollReveal(0.4);
+  
+  const [activeSkills, setActiveSkills] = useState<string[]>([]);
+
+  const handleSkillClick = (skillName: string) => {
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
+      return; 
+    }
+
+    setActiveSkills((prev) => {
+      if (prev.includes(skillName)) return prev;
+      return [...prev, skillName];
+    });
+
+    setTimeout(() => {
+      setActiveSkills((prev) => prev.filter((item) => item !== skillName));
+    }, 1500); 
+  };
+
+  const isActive = (skillName: string) => activeSkills.includes(skillName);
+
+  return (
+    <section 
+      id="tehnologii" 
+      ref={ref}
+      className="relative z-10 min-h-screen flex flex-col justify-center py-24 px-4 scroll-mt-20"
+    >
+      
+      <div className={`
+        max-w-7xl mx-auto w-full
+        transition-all duration-1000 md:duration-500 ease-out transform will-change-transform
+        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+      `}>
+
         <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4 transform-gpu">
           <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
             03_COMPETENȚE
@@ -15,7 +49,7 @@
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full">
+          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)]">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
@@ -23,7 +57,7 @@
 
             <div className="flex justify-between items-center mb-8 border-b border-dashed border-slate-400 pb-4">
               <h3 className="text-[25px] font-bold text-slate-800 font-mono tracking-tight select-none">
-                SECTOR 01: <span className="text-blue-600">SOFTWARE</span>
+                SECTOR{'\u00A0'}01: <span className="text-blue-600">SOFTWARE</span>
               </h3>
               <div className="flex items-center gap-2 px-2 py-1 bg-blue-50 border border-blue-200 rounded shadow-sm">
                 <div className="flex gap-0.5">
@@ -42,9 +76,24 @@
                 <p className="font-mono text-[14px] font-bold text-slate-500 mb-1 uppercase tracking-widest">
                   Scripting & AI
                 </p>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 select-none">
                   {["Python", "Tkinter", "C / C++", "PyTorch", "OpenCV"].map(item => (
-                    <span key={item} className="px-3 py-1 text-sm font-mono font-bold text-slate-700 border border-slate-600 bg-transparent hover:bg-slate-800 hover:text-white transition-colors cursor-default">
+                    <span 
+                      key={item} 
+                      onClick={() => handleSkillClick(item)} 
+                      className={`
+                        px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
+                        transition-colors ease-out active:bg-slate-800 active:text-white
+                        
+                        /* TRUCUL DE VITEZĂ: Instant ON (75ms), Slow OFF (300ms) */
+                        ${isActive(item) ? 'duration-75' : 'duration-300'} 
+
+                        ${isActive(item)
+                            ? 'bg-slate-800 text-white' 
+                            : 'text-slate-700 bg-transparent hover:bg-slate-800 hover:text-white'
+                        }
+                      `}
+                    >
                       {item}
                     </span>
                   ))}
@@ -55,9 +104,23 @@
                 <p className="font-mono text-[14px] font-bold text-slate-500 mb-1 uppercase tracking-widest">
                   Web & Cloud
                 </p>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 select-none">
                   {["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion", "Git / Github", "Vercel"].map(item => (
-                    <span key={item} className="px-3 py-1 text-sm font-mono font-bold text-slate-700 border border-slate-600 bg-transparent hover:bg-slate-800 hover:text-white transition-colors cursor-default">
+                    <span 
+                      key={item} 
+                      onClick={() => handleSkillClick(item)}
+                      className={`
+                        px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
+                        transition-colors ease-out active:bg-slate-800 active:text-white
+
+                        ${isActive(item) ? 'duration-75' : 'duration-300'}
+
+                        ${isActive(item) 
+                            ? 'bg-slate-800 text-white' 
+                            : 'text-slate-700 bg-transparent hover:bg-slate-800 hover:text-white'
+                        }
+                      `}
+                    >
                       {item}
                     </span>
                   ))}
@@ -66,7 +129,7 @@
             </div>
           </div>
 
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full">
+          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)]">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
@@ -74,7 +137,7 @@
 
             <div className="flex justify-between items-center mb-8 border-b border-dashed border-slate-400 pb-4">
               <h3 className="text-[25px] font-bold text-slate-800 font-mono tracking-tight select-none">
-                SECTOR 02: <span className="text-orange-600">INGINERIE</span>
+                SECTOR{'\u00A0'}02: <span className="text-orange-600">INGINERIE</span>
               </h3>
               <div className="flex items-center gap-2 px-2 py-1 bg-orange-50 border border-orange-200 rounded shadow-sm">
                 <div className="relative flex h-2 w-2">
@@ -92,9 +155,23 @@
                 <p className="font-mono text-[14px] font-bold text-slate-500 mb-1 uppercase tracking-widest">
                   Proiectare CAD / CAE
                 </p>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 select-none">
                   {["CATIA V5", "Fusion 360", "SolidWorks", "AutoCAD"].map(item => (
-                    <span key={item} className="px-3 py-1 text-sm font-mono font-bold text-slate-700 border border-slate-600 bg-transparent hover:bg-orange-900 hover:border-orange-900 hover:text-white transition-colors cursor-default">
+                    <span 
+                        key={item} 
+                        onClick={() => handleSkillClick(item)}
+                        className={`
+                            px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
+                            transition-colors ease-out active:bg-orange-900 active:border-orange-900 active:text-white
+
+                            ${isActive(item) ? 'duration-75' : 'duration-300'}
+
+                            ${isActive(item) 
+                                ? 'bg-orange-900 border-orange-900 text-white' 
+                                : 'text-slate-700 bg-transparent hover:bg-orange-900 hover:border-orange-900 hover:text-white'
+                            }
+                        `}
+                    >
                       {item}
                     </span>
                   ))}
@@ -103,11 +180,25 @@
 
               <div>
                 <p className="font-mono text-[14px] font-bold text-slate-500 mb-1 uppercase tracking-widest">
-                  Sisteme Integrate & Automatizări
+                  Sisteme Integrate{'\u00A0'}& Automatizări
                 </p>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 select-none">
                   {["LabVIEW", "C / C++ Embedded", "Programare CNC", "Matlab / Simulink", "Data Acquisition"].map(item => (
-                    <span key={item} className="px-3 py-1 text-sm font-mono font-bold text-slate-700 border border-slate-600 bg-transparent hover:bg-orange-900 hover:border-orange-900 hover:text-white transition-colors cursor-default">
+                    <span 
+                        key={item} 
+                        onClick={() => handleSkillClick(item)}
+                        className={`
+                            px-3 py-1 text-sm font-mono font-bold border border-slate-600 cursor-pointer active:scale-[0.95] 
+                            transition-colors ease-out active:bg-orange-900 active:border-orange-900 active:text-white
+                            
+                            ${isActive(item) ? 'duration-75' : 'duration-300'}
+
+                            ${isActive(item)
+                                ? 'bg-orange-900 border-orange-900 text-white' 
+                                : 'text-slate-700 bg-transparent hover:bg-orange-900 hover:border-orange-900 hover:text-white'
+                            }
+                        `}
+                    >
                       {item}
                     </span>
                   ))}
@@ -117,6 +208,7 @@
           </div>
 
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}

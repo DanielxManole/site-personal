@@ -15,9 +15,33 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portofoliu Inginerie & Web",
-  description: "Portofoliu student robotică",
+  title: "Manole Daniel | Inginerie & Robotică",
+  description: "Portofoliu personal - Student la Inginerie Industrială și Robotică (UNSTPB).",
+  keywords: ["Manole Daniel", "Inginerie", "Robotică", "CAD", "CATIA", "Portofoliu", "Next.js", "Student"],
+  authors: [{ name: "Manole Daniel" }],
+  openGraph: {
+    type: "website",
+    locale: "ro_RO",
+    url: "https://manoledaniel.vercel.app",
+    title: "Manole Daniel | Portfolio",
+    description: "Vezi proiectele mele de CAD, Robotică și Software.",
+    siteName: "Manole Daniel Portfolio",
+    images: [
+       {
+         url: '/opengraph-image.png',
+         width: 1200,
+         height: 630,
+         alt: 'Manole Daniel Portfolio Preview',
+       },
+     ],
+  },
 };
+
+export const viewport = {
+  themeColor: "#e0e5ec",
+  width: "device-width",
+  initialScale: 1,
+}
 
 export default function RootLayout({
   children,
