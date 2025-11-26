@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     locale: "ro_RO",
     url: "https://manoledaniel.vercel.app",
     title: "Manole Daniel | Portfolio",
-    description: "Vezi proiectele mele de CAD, Robotică și Software.",
+    description: "Vezi proiectele mele de Programare, Proiectare CAD & CAE, Robotică și Software.",
     siteName: "Manole Daniel Portfolio",
     images: [
        {
