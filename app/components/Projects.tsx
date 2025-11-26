@@ -87,7 +87,7 @@ const ProjectCard = ({ project }: { project: any }) => {
 
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const minSwipeDistance = 50; // Distanța minimă în pixeli pentru a considera că e swipe
+  const minSwipeDistance = 50;
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null); 
@@ -100,17 +100,12 @@ const ProjectCard = ({ project }: { project: any }) => {
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
-    if (isLeftSwipe) {
-      handleNext();
-    }
-    if (isRightSwipe) {
-        triggerPrev(); 
-    }
+    if (isLeftSwipe) handleNext();
+    if (isRightSwipe) triggerPrev();
   };
   
   const slides = hasSlideshow 
@@ -119,79 +114,56 @@ const ProjectCard = ({ project }: { project: any }) => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
+      ([entry]) => { setIsVisible(entry.isIntersecting); },
       { threshold: 0.1 }
     );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
-    return () => {
-      if (cardRef.current) {
-        observer.disconnect();
-      }
-    };
+    if (cardRef.current) observer.observe(cardRef.current);
+    return () => { if (cardRef.current) observer.disconnect(); };
   }, []);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      setIsTabActive(!document.hidden);
-    };
+    const handleVisibilityChange = () => { setIsTabActive(!document.hidden); };
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   useEffect(() => {
     if (!hasSlideshow || isHovered || project.images.length <= 1 || isAnimating || !isVisible || !isTabActive) return;
-
     const interval = setInterval(() => {
-      if (!isAnimating) {
-          setCurrentIndex(prev => prev + 1);
-      }
-    }, 2500);
-
+      if (!isAnimating) setCurrentIndex(prev => prev + 1);
+    }, 3000);
     return () => clearInterval(interval);
   }, [hasSlideshow, isHovered, project.images, isAnimating, isVisible, isTabActive]);
 
   useEffect(() => {
     if (!hasSlideshow) return;
-
     if (currentIndex === slides.length - 1) {
       setTimeout(() => {
         setIsTransitioning(false);
         setCurrentIndex(1);
         setIsAnimating(false);
       }, 700);
-    }
-    else if (currentIndex === 0) {
+    } else if (currentIndex === 0) {
       setTimeout(() => {
         setIsTransitioning(false);
         setCurrentIndex(slides.length - 2);
         setIsAnimating(false);
       }, 700);
-    } 
-    else {
+    } else {
       if (isAnimating) {
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 700);
+        setTimeout(() => { setIsAnimating(false); }, 700);
       }
     }
-
     if (!isTransitioning) {
-      setTimeout(() => {
-        setIsTransitioning(true);
-      }, 50);
+      requestAnimationFrame(() => {
+          setTimeout(() => { setIsTransitioning(true); }, 50);
+      });
     }
   }, [currentIndex, slides.length, hasSlideshow, isAnimating, isTransitioning]);
 
   const handleNext = (e?: React.MouseEvent) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     if (isAnimating) return;
-
     setIsAnimating(true);
     setCurrentIndex((prev) => prev + 1);
   };
@@ -257,17 +229,18 @@ const ProjectCard = ({ project }: { project: any }) => {
 
         {showImage ? (
           <div 
-            className="mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none touch-pan-y"
+            className="mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none touch-pan-y transform-gpu"
             onTouchStart={hasSlideshow ? onTouchStart : undefined}
             onTouchMove={hasSlideshow ? onTouchMove : undefined}
             onTouchEnd={hasSlideshow ? onTouchEnd : undefined}
           >
             <div 
-              className="flex h-full ease-in-out" 
+              className="flex h-full will-change-transform" 
               style={{ 
                 transform: `translateX(-${hasSlideshow ? currentIndex * 100 : 0}%)`,
                 transitionDuration: isTransitioning && hasSlideshow ? '700ms' : '0ms',
-                transitionProperty: 'transform'
+                transitionProperty: 'transform',
+                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
               {hasSlideshow ? (
@@ -278,7 +251,9 @@ const ProjectCard = ({ project }: { project: any }) => {
                       alt={`${project.title} slide`} 
                       fill 
                       className="object-cover pointer-events-none"
-                      priority={idx === 1} 
+                      priority={true}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      quality={85}
                     />
                   </div>
                 ))
@@ -289,6 +264,8 @@ const ProjectCard = ({ project }: { project: any }) => {
                       alt={project.title} 
                       fill 
                       className="object-cover"
+                      priority
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                 </div>
               )}
