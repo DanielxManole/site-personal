@@ -104,7 +104,7 @@ export default function About() {
               <div className="space-y-6 relative pl-6 border-l-2 border-slate-200 ml-2">
                 <div className="relative">
                   <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-orange-400 border-4 border-[#e0e5ec]"></div>
-                  <h4 className="font-bold text-slate-800">Facultatea de Inginerie Industrială și Robotică - UNSTPB</h4>
+                  <h4 className="font-bold text-slate-800">Facultatea de Inginerie Industrială și Robotică{'\u00A0'}- UNSTPB</h4>
                   <p className="text-sm text-slate-500 font-mono">Informatică Industrială{'\u00A0'}| 2023{'\u00A0'}{'\u2011'}{'\u00A0'}Prezent</p>
                 </div>
                 <div className="relative">
@@ -123,12 +123,12 @@ export default function About() {
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
                   <p className="text-s font-bold text-slate-700">Python Certificate</p>
-                  <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie 2025</p>
+                  <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                 </div>
                 
                 <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
                   <p className="text-s font-bold text-slate-700">Software Engineer Intern Certificate</p>
-                  <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie 2025</p>
+                  <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                 </div>
 
               </div>
