@@ -14,7 +14,7 @@ const projectsData = [
     link: "https://grabcad.com/library/3d-cad-manole-daniel-1",
     hasSlideshow: true, 
     images: [
-      "/images/fusion2.jpg",
+      "/images/fusion2.jpg ",
       "/images/catia5.jpg",
       "/images/solidworks1.jpg",
       "/images/catia4.jpg",
@@ -205,7 +205,7 @@ const ProjectCard = ({ project }: { project: any }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex flex-col h-full bg-[#e0e5ec] rounded-2xl p-8 relative z-10 backface-hidden shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out group-hover/card:-translate-y-2 group-hover/card:shadow-[12px_12px_24px_rgb(163,177,198,0.7),-12px_-12px_24px_rgba(255,255,255,0.5)]">
+      <div className="flex flex-col h-full bg-[#e0e5ec] rounded-2xl p-8 relative z-10 backface-hidden shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out group-hover/card:-translate-y-2 group-hover/card:shadow-[12px_12px_24px_rgb(163,177,198,0.7),-12px_-12px_24px_rgba(255,255,255,0.5)] transform-gpu">
         
         <div className="flex justify-between items-start mb-6 border-b border-slate-300 pb-3 border-dashed">
           <span className="font-mono text-xs font-bold text-blue-600 bg-blue-100/50 px-2 py-1 rounded border border-blue-200 select-none">
@@ -277,7 +277,7 @@ const ProjectCard = ({ project }: { project: any }) => {
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             Tech Stack:
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 transform-gpu">
             {project.tech.map((tech: string) => (
               <span key={tech} className="text-xs font-bold text-slate-600 px-3 py-1 rounded-lg bg-[#e0e5ec] shadow-[inset_2px_2px_5px_#bec3c9,inset_-2px_-2px_5px_rgba(255,255,255,0.5)]">
                 {tech}
@@ -300,7 +300,7 @@ const ProjectCard = ({ project }: { project: any }) => {
 
 export default function Projects() {
   return (
-    <section id="proiecte" className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative">
+    <section id="proiecte" className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative transform-gpu">
       
       <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
         <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
@@ -318,5 +318,4 @@ export default function Projects() {
       </div>
     </section>
   );
-
 }
