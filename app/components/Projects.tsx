@@ -7,7 +7,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 const projectsData = [
   {
     id: "01",
-    title: "PROIECTARE CAD\u00A02D\u00A0/\u00A03D",
+    title: "CAD & PROIECTARE\u00A03D",
     category: "// Industrial Design",
     description: "Colecție extinsă de ansambluri mecanice și piese complexe, completate de desene tehnice 2D de precizie. Demonstrează expertiză în design parametric și documentație de execuție folosind CATIA V5, Fusion 360, SolidWorks și AutoCAD.",
     tech: ["CATIA V5", "Fusion 360", "SolidWorks", "AutoCAD"],
@@ -84,6 +84,34 @@ const ProjectCard = ({ project }: { project: any }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isTabActive, setIsTabActive] = useState(true);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50; // Distanța minimă în pixeli pentru a considera că e swipe
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); 
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
+    }
+    if (isRightSwipe) {
+        triggerPrev(); 
+    }
+  };
   
   const slides = hasSlideshow 
     ? [project.images[project.images.length - 1], ...project.images, project.images[0]]
@@ -168,13 +196,16 @@ const ProjectCard = ({ project }: { project: any }) => {
     setCurrentIndex((prev) => prev + 1);
   };
 
+  const triggerPrev = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => prev - 1);
+  }
+
   const handlePrev = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isAnimating) return;
-
-    setIsAnimating(true);
-    setCurrentIndex((prev) => prev - 1);
+    triggerPrev();
   };
 
   let displayIndex = 1;
@@ -225,7 +256,12 @@ const ProjectCard = ({ project }: { project: any }) => {
         </p>
 
         {showImage ? (
-          <div className="mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none">
+          <div 
+            className="mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none touch-pan-y"
+            onTouchStart={hasSlideshow ? onTouchStart : undefined}
+            onTouchMove={hasSlideshow ? onTouchMove : undefined}
+            onTouchEnd={hasSlideshow ? onTouchEnd : undefined}
+          >
             <div 
               className="flex h-full ease-in-out" 
               style={{ 
@@ -241,7 +277,7 @@ const ProjectCard = ({ project }: { project: any }) => {
                       src={imgSrc} 
                       alt={`${project.title} slide`} 
                       fill 
-                      className="object-cover"
+                      className="object-cover pointer-events-none"
                       priority={idx === 1} 
                     />
                   </div>
@@ -333,4 +369,3 @@ export default function Projects() {
     </section>
   );
 }
-
