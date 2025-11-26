@@ -27,24 +27,24 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col bg-[#e0e5ec] text-slate-700 overflow-x-hidden relative">
+    <main className="flex min-h-screen flex-col bg-[#e0e5ec] text-slate-700 overflow-x-hidden relative z-0">
       
       {/* HERO SECTION */}
-      <div className="relative flex flex-col items-center justify-center min-h-screen w-full py-20">
+      <div className="relative flex flex-col items-center justify-center min-h-screen w-full py-20 **overflow-hidden**">
         
         {/* BACKGROUND GRID */}
-        <div className="absolute inset-0 pointer-events-none opacity-40"
+        <div className="absolute inset-0 pointer-events-none opacity-40 **-z-10**"
             style={{ 
               backgroundImage: 'linear-gradient(0deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent)',
-              backgroundSize: '60px 60px',
+              backgroundSize: '14px 14px',
               transform: 'perspective(500px) rotateX(60deg) translateY(-100px) scale(2)',
               maskImage: 'linear-gradient(to bottom, transparent 5%, black 40%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 5%, black 40%)' 
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 45%, black 40%)' 
             }}>
         </div>
 
         {/* HERO CARD CONTAINER */}
-        <div ref={heroRef} className="z-10 bg-[#e0e5ec] p-8 md:p-16 rounded-3xl shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)] max-w-4xl w-full text-center border border-white/40 relative mx-4 mt-10">
+        <div ref={heroRef} className="z-10 bg-[#e0e5ec] p-7 md:p-16 rounded-3xl shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)] max-w-4xl w-full text-center border border-white/40 relative mx-4 mt-10">
           
           {/* COTELE DINAMICE */}
           <div className="absolute -left-4 md:-left-12 top-0 bottom-0 w-px bg-slate-400 flex flex-col justify-center items-center opacity-60 select-none">
@@ -63,14 +63,8 @@ export default function Home() {
           </span>
 
           <h1 className="text-5xl md:text-8xl font-black text-slate-700 mb-8 tracking-tighter text-center">
-             <span className="inline-block leading-[0.8] py-1 select-none">
-              [‏‏‎ ‎
-             </span>
-             <span className="inline-block leading-[0.8] py-1 select-text">
-              Manole Daniel
-             </span>
-             <span className="inline-block leading-[0.8] py-1 select-none">
-              ‏‏‎ ‎]
+             <span className="inline-block leading-[0.9] py-1 select-text">
+              [ Manole Daniel ]
              </span>
           </h1>
 
