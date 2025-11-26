@@ -126,7 +126,7 @@ export default function Navbar() {
             <div className="md:hidden flex items-center z-[60]">
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[4px_4px_8px_#bec3c9,-4px_-4px_8px_white] active:shadow-[inset_4px_4px_8px_#bec3c9,inset_-4px_-4px_8px_white] transition-all duration-300">
+                className="group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300">
                 <span className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out origin-center ${isMobileMenuOpen ? 'rotate-45 translate-y-[9px]' : ''}`}></span>
                 <span className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'scale-x-0 opacity-0' : 'scale-x-100 opacity-100'}`}></span>
                 <span className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'w-6 -rotate-45 -translate-y-[9px] bg-slate-800 mr-0 self-center' : ''}`}></span>
@@ -207,4 +207,5 @@ export default function Navbar() {
       `}</style>
     </nav>
   );
+
 }
