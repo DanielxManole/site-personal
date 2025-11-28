@@ -1,10 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import ContactModal from './ContactModal';
 
 export default function Footer() {
-  const { ref, isVisible } = useScrollReveal(0.4); 
+  const { ref, isVisible } = useScrollReveal(0.4);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <footer 
@@ -12,6 +14,8 @@ export default function Footer() {
       ref={ref}
       className="min-h-screen w-full relative flex flex-col items-center justify-center py-20 px-4"
     >
+
+      <ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <div className={`
         max-w-4xl w-full text-center relative z-10
@@ -25,10 +29,10 @@ export default function Footer() {
           transform-gpu 
         ">
           
-          <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
-          <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-450 transition-transform duration-1200 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
+          <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
 
           <h2 className="text-3xl md:text-5xl font-black text-slate-700 mb-6 tracking-tight select-none">
             CONTACT{'\u00A0'}& COLABORARE
@@ -52,9 +56,12 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
             
             <div className="relative group/btn">
-                <a href="mailto:manoledaniel2004@gmail.com" className="flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 active:scale-[0.95]">
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 active:scale-[0.95] cursor-pointer"
+                >
                   <span>📩</span> Trimite Email
-                </a>
+                </button>
             </div>
             
             <div className="relative group/btn">
@@ -77,5 +84,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-
 }

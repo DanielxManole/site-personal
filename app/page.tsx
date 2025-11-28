@@ -43,11 +43,11 @@ export default function Home() {
       
       <div className="relative flex flex-col items-center justify-center min-h-screen w-full py-20 **overflow-hidden**">
         
-        <div className="absolute inset-0 pointer-events-none opacity-40 **-z-10**"
+        <div className="absolute inset-0 pointer-events-none opacity-40 -z-10 will-change-transform"
             style={{ 
               backgroundImage: 'linear-gradient(0deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #a3b1c6 25%, #a3b1c6 26%, transparent 27%, transparent 74%, #a3b1c6 75%, #a3b1c6 76%, transparent 77%, transparent)',
               backgroundSize: '14px 14px',
-              transform: 'perspective(500px) rotateX(60deg) translateY(-100px) scale(2)',
+              transform: 'perspective(500px) rotateX(60deg) translateY(-100px) scale(2) translateZ(0)',
               maskImage: 'linear-gradient(to bottom, transparent 5%, black 40%)',
               WebkitMaskImage: 'linear-gradient(to bottom, transparent 5%, black 40%)' 
             }}>

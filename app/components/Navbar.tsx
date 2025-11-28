@@ -32,28 +32,41 @@ export default function Navbar() {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      for (const item of menuItems) {
-        const element = document.getElementById(item.id);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top >= 0 && rect.top <= 500) {
-            setActiveSection(item.id);
-            break; 
-          } else if (rect.top < 0 && rect.bottom > 150) {
-             setActiveSection(item.id);
-          }
-        }
-      }
-      if (window.scrollY < 100) setActiveSection('');
+    let ticking = false;
 
-      if (progressBarRef.current) {
-        const totalScroll = document.documentElement.scrollTop;
-        const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        if (windowHeight > 0) {
-            const scrollPercent = totalScroll / windowHeight;
-            progressBarRef.current.style.width = `${scrollPercent * 100}%`;
-        }
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          
+          if (progressBarRef.current) {
+            const totalScroll = window.scrollY || document.documentElement.scrollTop;
+            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            
+            if (windowHeight > 0) {
+                const scrollPercent = totalScroll / windowHeight;
+                const safePercent = Math.min(100, Math.max(0, scrollPercent * 100));
+                progressBarRef.current.style.width = `${safePercent}%`;
+            }
+          }
+
+          for (const item of menuItems) {
+            const element = document.getElementById(item.id);
+            if (element) {
+              const rect = element.getBoundingClientRect();
+              if (rect.top >= 0 && rect.top <= 500) {
+                setActiveSection(item.id);
+                break; 
+              } else if (rect.top < 0 && rect.bottom > 150) {
+                 setActiveSection(item.id);
+              }
+            }
+          }
+          if (window.scrollY < 100) setActiveSection('');
+
+          ticking = false;
+        });
+
+        ticking = true;
       }
     };
 
@@ -81,6 +94,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
             
+            {/* LOGO */}
             <div className="flex-shrink-0 z-50">
               <Link href="/" onClick={scrollToTop} className="flex items-center gap-4 group cursor-pointer">
                 <div className="scene w-10 h-10 flex items-center justify-center">
@@ -97,8 +111,14 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300">Manole.cad</span>
-                  <span className="font-mono text-[14px] text-slate-400 leading-none group-hover:text-blue-400 transition-colors duration-300">Part1</span>
+                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">ManoleDaniel.cad</span>
+                  <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
+                      <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
+                      <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z"/>
+                    </svg>
+                    Part1
+                  </span>
                 </div>
               </Link>
             </div>
@@ -111,7 +131,7 @@ export default function Navbar() {
                     href={`#${item.id}`} 
                     className={`
                       font-sans px-3 py-2 rounded-md text-sm font-bold transition-all active:scale-[0.95]
-                      ${item.id === 'contact' 
+                      ${item.id === 'contact'
                         ? `ml-4 px-6 shadow-[4px_4px_8px_#a1a6ac,-4px_-4px_8px_rgba(255,255,255,0.5)] bg-blue-600 text-white hover:bg-blue-700`
                         : `${activeSection === item.id ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'}`
                       }
@@ -136,7 +156,10 @@ export default function Navbar() {
           </div>
         </div>
         
-        <div ref={progressBarRef} className="absolute bottom-[-1px] left-0 h-[3px] bg-gradient-to-r from-blue-700 to-blue-400 z-50 w-0"></div>
+        <div 
+            ref={progressBarRef} 
+            className="absolute bottom-[-1px] left-0 h-[3px] bg-gradient-to-r from-blue-700 to-blue-400 z-50 w-0 will-change-[width]"
+        ></div>
       </div>
 
       <div 
@@ -207,5 +230,4 @@ export default function Navbar() {
       `}</style>
     </nav>
   );
-
 }
