@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -17,15 +16,13 @@ function AnimatedLink({
   onClick?: () => void;
 }) {
   const [isClicked, setIsClicked] = useState(false);
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 150); // Durata animației scale
+    setTimeout(() => setIsClicked(false), 150);
     if (onClick) onClick();
-    window.location.href = href; // navigare hash
+    window.location.href = href;
   };
-
   return (
     <a
       href={href}
@@ -43,15 +40,13 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
-
+  
   const menuItems = [
     { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
     { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
     { id: "tehnologii", label: "COMPETENȚE", sub: "Stack Tehnic" },
     { id: "contact", label: "CONTACT", sub: "Hai să vorbim" },
   ];
-
-  const touchStartRef = useRef(0);
 
   // Scroll lock pentru meniul mobil
   useEffect(() => {
@@ -64,76 +59,95 @@ export default function Navbar() {
     }
   }, [isMobileMenuOpen]);
   
-  // 🎯 NOU: LOGICA DE SWIPE PE TOT ECRANUL
+  // 🎯 SWIPE LOGIC - CORECTATĂ
   useEffect(() => {
-  const minSwipeDistance = 70; // distanța minimă pentru a considera swipe
-  const marginThreshold = 50; // swipe-ul trebuie să înceapă de la margine
-  const touchStartRef = { current: 0 };
-  const touchYRef = { current: 0 }; // pentru a detecta swipe vertical
+    const minSwipeDistance = 70;
+    const edgeThreshold = 50; // swipe trebuie să înceapă de la margine
+    
+    let touchStartX: number | null = null;
+    let touchStartY: number | null = null;
+    let isSwiping = false;
 
-  const handleTouchStart = (e: TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientX;
-    touchYRef.current = e.touches[0].clientY;
-  };
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!e.touches || e.touches.length === 0) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      isSwiping = false;
+    };
 
-  const handleTouchMove = (e: TouchEvent) => {
-    const deltaX = e.touches[0].clientX - touchStartRef.current;
-    const deltaY = e.touches[0].clientY - touchYRef.current;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (touchStartX === null || touchStartY === null) return;
+      if (!e.touches || e.touches.length === 0) return;
 
-    // dacă swipe orizontal mai mare decât vertical, prevenim scroll-ul vertical
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-      e.preventDefault(); // oprește scroll vertical când detectează swipe
-    }
-  };
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - touchStartX;
+      const deltaY = currentY - touchStartY;
+      
+      // Detectează swipe orizontal
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        isSwiping = true;
+        // Previne scroll-ul doar dacă e swipe valid
+        if (touchStartX < edgeThreshold || isMobileMenuOpen) {
+          e.preventDefault();
+        }
+      }
+    };
 
-  const handleTouchEnd = (e: TouchEvent) => {
-    const endX = e.changedTouches[0].clientX;
-    const swipeDistance = endX - touchStartRef.current;
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isSwiping || touchStartX === null) return;
+      if (!e.changedTouches || e.changedTouches.length === 0) return;
+      
+      const endX = e.changedTouches[0].clientX;
+      const swipeDistance = endX - touchStartX;
+      
+      // Swipe dreapta → deschide meniul (doar de la marginea stângă)
+      if (
+        swipeDistance > minSwipeDistance && 
+        touchStartX < edgeThreshold && 
+        !isMobileMenuOpen
+      ) {
+        setIsMobileMenuOpen(true);
+      }
+      
+      // Swipe stânga → închide meniul (oriunde pe ecran când e deschis)
+      if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+      
+      // Reset
+      touchStartX = null;
+      touchStartY = null;
+      isSwiping = false;
+    };
 
-    // Swipe dreapta → deschide meniul dacă e pe margine și nu e deja deschis
-    if (swipeDistance > minSwipeDistance && touchStartRef.current < marginThreshold && !isMobileMenuOpen) {
-      setIsMobileMenuOpen(true);
-    }
+    // Adaugă listeners cu opțiuni corecte
+    document.addEventListener("touchstart", handleTouchStart, { passive: true });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: true });
 
-    // Swipe stânga → închide meniul dacă e deschis
-    if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
-  };
-
-  // Atașăm listener-ele pe document
-  document.addEventListener("touchstart", handleTouchStart, { passive: false });
-  document.addEventListener("touchmove", handleTouchMove, { passive: false });
-  document.addEventListener("touchend", handleTouchEnd, { passive: false });
-
-  return () => {
-    document.removeEventListener("touchstart", handleTouchStart);
-    document.removeEventListener("touchmove", handleTouchMove);
-    document.removeEventListener("touchend", handleTouchEnd);
-  };
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
   }, [isMobileMenuOpen]);
 
   // Scroll progress + active section
   useEffect(() => {
     let ticking = false;
-
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           // Progress bar
           if (progressBarRef.current) {
-            const totalScroll =
-              window.scrollY || document.documentElement.scrollTop;
+            const totalScroll = window.scrollY || document.documentElement.scrollTop;
             const windowHeight =
               document.documentElement.scrollHeight -
               document.documentElement.clientHeight;
-
             if (windowHeight > 0) {
               const scrollPercent = totalScroll / windowHeight;
-              const safePercent = Math.min(
-                100,
-                Math.max(0, scrollPercent * 100)
-              );
+              const safePercent = Math.min(100, Math.max(0, scrollPercent * 100));
               progressBarRef.current.style.width = `${safePercent}%`;
             }
           }
@@ -152,10 +166,8 @@ export default function Navbar() {
             }
           }
           if (window.scrollY < 100) setActiveSection("");
-
           ticking = false;
         });
-
         ticking = true;
       }
     };
@@ -168,18 +180,12 @@ export default function Navbar() {
   const isErrorPage = pathname !== '/';
   const logoHref = isErrorPage ? '/' : '#top';
 
-  // Scroll to top logo
   const scrollToTop = () => {
     setIsMobileMenuOpen(false);
-    if (isErrorPage) {
-
-    } else {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!isErrorPage) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
-  // ❌ Am eliminat funcțiile locale handleTouchStart/handleTouchEnd de aici
-  // ele sunt acum în useEffect
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-20">
@@ -207,7 +213,9 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">ManoleDaniel.cad</span>
+                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">
+                    ManoleDaniel.cad
+                  </span>
                   <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
                       <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
@@ -221,20 +229,19 @@ export default function Navbar() {
 
             {/* Desktop menu */}
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
+              <div className="hidden md:flex items-baseline ml-auto space-x-4 md:space-x-8">
                 {menuItems.map((item) => (
                   <AnimatedLink
                     key={item.id}
                     href={isErrorPage ? `/#${item.id}` : `#${item.id}`}
-                    // MODIFICARE AICI: Condiție pentru stilul butonului CONTACT
                     className={`
                       font-sans px-3 py-2 rounded-md text-sm font-bold transition-all
                       ${
                         item.id === "contact"
-                          ? "ml-4 px-6 bg-blue-600 text-white shadow-[4px_4px_8px_#a1a6ac,-4px_-4px_8px_rgba(255,255,255,0.5)] hover:bg-blue-700" // Stil Buton Contact
+                          ? "ml-4 px-6 bg-blue-600 text-white shadow-[4px_4px_8px_#a1a6ac,-4px_-4px_8px_rgba(255,255,255,0.5)] hover:bg-blue-700"
                           : activeSection === item.id
-                          ? "text-blue-600" // Stil Link Activ
-                          : "text-slate-600 hover:text-blue-600" // Stil Link Inactiv
+                          ? "text-blue-600"
+                          : "text-slate-600 hover:text-blue-600"
                       }
                     `}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -246,7 +253,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile button */}
-            <div className="md:hidden flex items-center z-[60]">
+            <div className="md:hidden flex items-center z-50">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300"
@@ -258,16 +265,12 @@ export default function Navbar() {
                 ></span>
                 <span
                   className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen
-                      ? "scale-x-0 opacity-0"
-                      : "scale-x-100 opacity-100"
+                    isMobileMenuOpen ? "scale-x-0 opacity-0" : "scale-x-100 opacity-100"
                   }`}
                 ></span>
                 <span
                   className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen
-                      ? "w-6 -rotate-45 -translate-y-[9px]"
-                      : ""
+                    isMobileMenuOpen ? "w-6 -rotate-45 -translate-y-[9px]" : ""
                   }`}
                 ></span>
               </button>
@@ -284,10 +287,10 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
+        className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 ${
           isMobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
         }`}
-        style={{ touchAction: "none" }}
+        style={{ touchAction: "pan-y" }}
       >
         <div
           className="absolute inset-0 pointer-events-none opacity-20"
@@ -297,7 +300,6 @@ export default function Navbar() {
             backgroundSize: "40px 40px",
           }}
         ></div>
-
         <div className="w-full max-w-sm px-6 space-y-8 relative z-50">
           {menuItems.map((item, index) => (
             <AnimatedLink
