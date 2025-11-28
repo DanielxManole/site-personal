@@ -295,7 +295,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   sendEmail(e as unknown as React.FormEvent);
                 }, 150);
               }}
-              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_white] transition-all active:scale-[0.95] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)] flex justify-center items-center gap-2 ${
+              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:scale-95 ${
                 status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
               } ${emailBtnClicked ? "scale-[0.95]" : "scale-100"}`}
             >
