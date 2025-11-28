@@ -15,51 +15,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
-  const [closing, setClosing] = useState(false);
+  // --- Stări pentru animații ---
+  const [showModal, setShowModal] = useState(false); 
+  const [isMounted, setIsMounted] = useState(false); 
 
-  const [showModal, setShowModal] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
+  // --- State-uri pentru animatii delay ---
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const isMobile = window.matchMedia("(hover: none)").matches;
-    if (isMobile) {
-        const scrollY = window.scrollY;
-
-        const html = document.documentElement;
-        const prevScrollBehavior = html.style.scrollBehavior;
-        html.style.scrollBehavior = "auto";
-
-        document.body.style.position = "fixed";
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.left = "0";
-        document.body.style.right = "0";
-        document.body.style.overflow = "hidden";
-        document.body.style.width = "100%";
-
-        const preventTouch = (e: TouchEvent) => e.preventDefault();
-        document.addEventListener("touchmove", preventTouch, { passive: false });
-
-        return () => {
-        document.removeEventListener("touchmove", preventTouch);
-
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.overflow = "";
-        document.body.style.width = "";
-
-        window.scrollTo(0, scrollY);
-
-        html.style.scrollBehavior = prevScrollBehavior;
-        };
-    }
-    }, [isOpen]);
 
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
@@ -68,7 +30,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (isOpen) {
       setShowModal(true);
       animationFrame = requestAnimationFrame(() => setIsMounted(true));
-      document.body.classList.add("modal-open-neumorphism");
+      document.body.classList.add('modal-open-neumorphism');
     } else {
       setIsMounted(false);
       domTimer = setTimeout(() => {
@@ -78,16 +40,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setFormData({ numele: "", email: "", mesajul: "" });
         setCountdown(3);
       }, 300);
-      document.body.classList.remove("modal-open-neumorphism");
+      document.body.classList.remove('modal-open-neumorphism');
     }
 
     return () => {
       clearTimeout(domTimer);
       cancelAnimationFrame(animationFrame);
-      document.body.classList.remove("modal-open-neumorphism");
+      document.body.classList.remove('modal-open-neumorphism');
     };
   }, [isOpen]);
 
+  // ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -96,12 +59,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
+  // Puls pentru erori
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
+  // Cronometru SUCCESS
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -159,6 +124,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     });
   };
 
+  // 🌟 Fix iOS / Android input focus
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  };
+
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -198,38 +170,30 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   }`;
 
   const inputClass = (hasError: boolean) =>
-    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
+    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none 
+
      shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
-       hasError ? "animate-shake border-red-500" : ""
-     }`;
+      hasError ? "animate-shake border-red-500" : ""
+    }`;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div
-        className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${
-          isMounted ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${isMounted ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
 
       <div
-        className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl
-          shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
-          border border-white/50 transform transition-all duration-300
-          ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}
-          h-[70vh] md:h-auto overflow-auto pt-[4rem] md:pt-8`}
+        className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)] border border-white/50 transform transition-all duration-300 ${
+          isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
+        }`}
       >
         <button
           onClick={() => {
-            if (closing) return;   // 🛑 previne dublu-tap pe iPhone
-            setClosing(true);
-
             setCloseBtnClicked(true);
-
             setTimeout(() => {
               setCloseBtnClicked(false);
               onClose();
-              setClosing(false);
             }, 150);
           }}
           className={`absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] select-none text-slate-500 flex items-center justify-center shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] transition-all
@@ -272,6 +236,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                       placeholder={field === "email" ? "contact@email.com" : "Nume"}
                       onChange={handleInputChange}
                       onBlur={handleBlur}
+                      onFocus={handleFocus}
                     />
                   ) : (
                     <textarea
@@ -282,6 +247,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                       placeholder="Salut! Te contactez în legătură cu..."
                       onChange={handleInputChange}
                       onBlur={handleBlur}
+                      onFocus={handleFocus}
                     />
                   )}
                   {errors[field] && (
@@ -294,9 +260,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             <button
               type="submit"
               disabled={status === "SENDING"}
-              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-150
-                ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
-                active:scale-95`}
+              onClick={(e) => {
+                e.preventDefault();
+                setEmailBtnClicked(true);
+                setTimeout(() => {
+                  setEmailBtnClicked(false);
+                  sendEmail(e as unknown as React.FormEvent);
+                }, 150);
+              }}
+              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_white] transition-all active:scale-[0.95] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)] flex justify-center items-center gap-2 ${
+                status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              } ${emailBtnClicked ? "scale-[0.95]" : "scale-100"}`}
             >
               {status === "SENDING" ? (
                 <>
@@ -325,7 +299,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           100% { transform: translateX(0); }
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
-        input, textarea { line-height: 1 !important; }
       `}</style>
     </div>
   );
