@@ -12,15 +12,20 @@ export default function Footer() {
   const [isBtnClicked, setIsBtnClicked] = useState<string | null>(null);
 
   // Funcție dedicată pentru butonul de Email (cu Delay)
+  const [isProcessingEmail, setIsProcessingEmail] = useState(false);
   const handleEmailClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    
-    setIsBtnClicked('email'); // Pornim animația
+
+    if (isProcessingEmail) return; // ❗ Blochează apăsările multiple
+    setIsProcessingEmail(true);
+
+    setIsBtnClicked("email");
 
     setTimeout(() => {
-        setIsBtnClicked(null); // Resetăm animația
-        setIsModalOpen(true);  // Deschidem modalul
-    }, 150); // Delay de 200ms
+      setIsBtnClicked(null);
+      setIsModalOpen(true);
+      setIsProcessingEmail(false); // deblochează
+    }, 300);
   };
 
 
@@ -75,7 +80,8 @@ export default function Footer() {
             {/* BUTON EMAIL (CU DELAY ȘI ANIMAȚIE) */}
             <div className="relative group/btn w-full sm:w-auto">
                 <button 
-                  onClick={handleEmailClick}
+                  onPointerDown={handleEmailClick}
+                  onClick={(e) => e.preventDefault()}
                   className={`
                     w-full flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg 
                     shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-200 ease-out 
