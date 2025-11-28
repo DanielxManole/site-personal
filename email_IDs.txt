@@ -1,0 +1,5 @@
+Service ID: service_wxairj9
+Template ID: template_7u4i17n
+
+API keys:
+    Public Key: mr9J92JVGIZVolmMm

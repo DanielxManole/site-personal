@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
+import ConsoleMsg from "./components/ConsoleMsg";
+
 import Navbar from "./components/Navbar";
 import CADCursor from "./components/CADCursor"; 
 
@@ -11,6 +14,7 @@ const spaceGrotesk = Space_Grotesk({
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  display: 'swap',
   variable: "--font-jetbrains", 
 });
 
@@ -24,7 +28,7 @@ export const metadata: Metadata = {
     locale: "ro_RO",
     url: "https://manoledaniel.vercel.app",
     title: "Manole Daniel | Portfolio",
-    description: "Vezi proiectele mele de Programare, Proiectare CAD & CAE, Robotică și Software.",
+    description: "Vezi proiectele mele de CAD, Robotică și Software.",
     siteName: "Manole Daniel Portfolio",
     images: [
        {
@@ -52,10 +56,14 @@ export default function RootLayout({
     <html lang="ro" className="scroll-smooth">
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] antialiased opacity-0 fade-in-on-load`}>
         
+        <ConsoleMsg />
+
         <CADCursor />
         
         <Navbar />
         {children}
+
+        <Analytics />
         
       </body>
     </html>

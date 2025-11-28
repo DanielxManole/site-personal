@@ -50,6 +50,8 @@ export default function BackToTop() {
         hover:-translate-y-1
         active:scale-95
 
+        cursor-pointer
+
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}
       `}
       aria-label="Back to top"

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import Image from 'next/image';
 
 export default function About() {
   const { ref, isVisible } = useScrollReveal(0.4); 
@@ -40,10 +41,13 @@ export default function About() {
                   
                   <div className="absolute inset-0 bg-white z-10"></div> 
                   
-                  <img
+                  <Image
                     src="/images/manole-daniel-profile.jpg"
                     alt="Manole Daniel Profile Picture"
-                    className="object-cover w-full h-full absolute inset-0 rounded-xl border-2 border-slate-300 z-20" 
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover rounded-xl border-2 border-slate-300 z-20" 
                   />
                   
                   <div className="absolute inset-0 bg-blue-500/10 animate-subtle-pulse z-30"></div> 
@@ -52,10 +56,22 @@ export default function About() {
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-slate-800">Manole Daniel</h3>
                   <p className="text-sm text-blue-600 font-mono font-bold mt-1">STUDENT @ ROBOTICĂ</p>
-                  <div className="mt-4 flex justify-center gap-2 items-center">
+                  
+                  <div className="mt-4 flex justify-center gap-2 items-center mb-6">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     <span className="text-xs font-mono text-slate-500 select-none">AVAILABLE FOR HIRE</span>
                   </div>
+
+                  <div className="relative group/btn w-full select-none">
+                    <a 
+                      href="/CV.pdf" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:scale-95 active:scale-[0.95]">
+                      <span className="text-lg">📄</span> VEZI CV / RESUME
+                    </a>
+                  </div>
+
                 </div>
               </div>
 
@@ -66,7 +82,7 @@ export default function About() {
                 </div>
                 <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
                   <p className="text-[10px] font-mono text-slate-400 uppercase select-none">Domeniu Cheie</p>
-                  <p className="text-sm font-bold text-slate-700">Programare{'\u00A0'}& CAD</p>
+                  <p className="text-sm font-bold text-slate-700">Programare & CAD</p>
                 </div>
               </div>
             </div>

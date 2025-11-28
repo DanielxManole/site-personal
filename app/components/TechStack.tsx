@@ -49,7 +49,7 @@ export default function TechStack() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)]">
+          <div className="relative p-8 border-2 border-slate-400 bg-[#f5f7fa] h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
@@ -132,7 +132,7 @@ export default function TechStack() {
             </div>
           </div>
 
-          <div className="relative p-8 border-2 border-slate-400 bg-white/40 backdrop-blur-3xl h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)]">
+          <div className="relative p-8 border-2 border-slate-400 bg-[#f5f7fa] h-full shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu">
             <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-slate-800"></div>
             <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-slate-800"></div>
