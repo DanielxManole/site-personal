@@ -171,7 +171,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   const inputClass = (hasError: boolean) =>
     `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none 
-     leading-tight
      shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
       hasError ? "animate-shake border-red-500" : ""
     }`;
@@ -303,3 +302,4 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     </div>
   );
 }
+
