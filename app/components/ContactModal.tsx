@@ -201,7 +201,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
           border border-white/50 transform transition-all duration-300
           ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}
-          h-[70vh] md:h-auto overflow-auto pt-[5rem] md:pt-8`}
+          h-[80vh] md:h-auto overflow-auto pt-[5rem] md:pt-8`}
       >
         {/* Buton inchidere */}
         <button
