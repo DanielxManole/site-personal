@@ -7,6 +7,22 @@ import ContactModal from './ContactModal';
 export default function Footer() {
   const { ref, isVisible } = useScrollReveal(0.4);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // State-ul isBtnClicked va urmări ACUM doar butonul de Email
+  const [isBtnClicked, setIsBtnClicked] = useState<string | null>(null);
+
+  // Funcție dedicată pentru butonul de Email (cu Delay)
+  const handleEmailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    setIsBtnClicked('email'); // Pornim animația
+
+    setTimeout(() => {
+        setIsBtnClicked(null); // Resetăm animația
+        setIsModalOpen(true);  // Deschidem modalul
+    }, 150); // Delay de 200ms
+  };
+
 
   return (
     <footer 
@@ -29,6 +45,7 @@ export default function Footer() {
           transform-gpu 
         ">
           
+          {/* Șuruburi decorative - rămân la fel */}
           <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
           <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
           <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
@@ -55,17 +72,31 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
             
-            <div className="relative group/btn">
+            {/* BUTON EMAIL (CU DELAY ȘI ANIMAȚIE) */}
+            <div className="relative group/btn w-full sm:w-auto">
                 <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 active:scale-[0.95] cursor-pointer"
+                  onClick={handleEmailClick}
+                  className={`
+                    w-full flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg 
+                    shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-200 ease-out 
+                    group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 
+                    ${isBtnClicked === 'email' ? 'scale-[0.95]' : 'scale-100 active:scale-[0.95]'} cursor-pointer
+                  `}
                 >
                   <span>📩</span> Trimite Email
                 </button>
             </div>
-            
-            <div className="relative group/btn">
-                <a href="https://www.linkedin.com/in/manoledaniel/" target="_blank" className="flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-[#e0e5ec] text-slate-700 font-bold text-lg shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out group-hover/btn:shadow-[inset_4px_4px_8px_#bec3c9,inset_-4px_-4px_8px_rgba(255,255,255,0.5)] group-hover/btn:scale-95 active:scale-[0.95]">
+  
+            {/* BUTON LINKEDIN (FĂRĂ DELAY, NAVIGARE INSTANT) */}
+            <div className="relative group/btn w-full sm:w-auto">
+                <a 
+                    href="https://www.linkedin.com/in/manoledaniel/" 
+                    target="_blank"
+                    className="w-full flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-[#e0e5ec] text-slate-700 font-bold text-lg 
+                      shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out 
+                      group-hover/btn:shadow-[inset_4px_4px_8px_#bec3c9,inset_-4px_-4px_8px_rgba(255,255,255,0.5)] group-hover/btn:scale-95 
+                      active:scale-[0.95] cursor-pointer"
+                >
                   <span>🔗</span> LinkedIn
                 </a>
             </div>

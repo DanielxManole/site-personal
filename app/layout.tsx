@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/react";
 import ConsoleMsg from "./components/ConsoleMsg";
+import HashScroll from "./components/HashScroll";
 
 import Navbar from "./components/Navbar";
 import CADCursor from "./components/CADCursor"; 
@@ -57,13 +57,10 @@ export default function RootLayout({
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] antialiased opacity-0 fade-in-on-load`}>
         
         <ConsoleMsg />
-
         <CADCursor />
-        
+        <HashScroll />
         <Navbar />
         {children}
-
-        <Analytics />
         
       </body>
     </html>

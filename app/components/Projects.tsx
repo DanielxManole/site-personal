@@ -273,8 +273,8 @@ const ProjectCard = ({ project }: { project: any }) => {
             
             {hasSlideshow && (
               <>
-                <button onClick={handlePrev} className={`absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-slate-800 hover:bg-blue-600 hover:text-white transition-all duration-300 z-20 cursor-pointer ${isHovered ? 'opacity-100' : 'opacity-0'}`}>←</button>
-                <button onClick={handleNext} className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-slate-800 hover:bg-blue-600 hover:text-white transition-all duration-300 z-20 cursor-pointer ${isHovered ? 'opacity-100' : 'opacity-0'}`}>→</button>
+                <button onClick={handlePrev} tabIndex={-1} className={`absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-slate-800 hover:bg-blue-600 hover:text-white transition-all duration-300 z-20 cursor-pointer ${isHovered ? 'opacity-100' : 'opacity-0'}`}>←</button>
+                <button onClick={handleNext} tabIndex={-1} className={`absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-slate-800 hover:bg-blue-600 hover:text-white transition-all duration-300 z-20 cursor-pointer ${isHovered ? 'opacity-100' : 'opacity-0'}`}>→</button>
                 <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/20 z-20">
                   {displayIndex} / {project.images.length}
                 </div>
@@ -301,7 +301,7 @@ const ProjectCard = ({ project }: { project: any }) => {
         </div>
 
         <div className="relative w-fit group/link select-none active:scale-[0.95]">
-          <a href={project.link} target={project.link !== "#" ? "_blank" : "_self"} className="inline-flex items-center text-sm font-bold text-blue-600 transition-colors group-hover/link:text-blue-800">
+          <a href={project.link} target={project.link !== "#" ? "_blank" : "_self"} className="inline-flex items-center text-base font-bold text-blue-600 transition-colors group-hover/link:text-blue-800">
             {getButtonText()}
             <span className="ml-1 transition-transform group-hover/link:translate-x-1 duration-500">→</span>
           </a>

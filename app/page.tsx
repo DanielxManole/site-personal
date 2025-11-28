@@ -87,18 +87,26 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
-            
-            <div className="relative group/btn">
-              <a href="#proiecte" className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#e0e5ec] text-blue-600 font-bold shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:shadow-[inset_6px_6px_12px_#bec3c9,inset_-6px_-6px_12px_rgba(255,255,255,0.5)] group-hover/btn:scale-95 active:scale-[0.95]">
+
+            {/* Proiecte */}
+            <div className="relative group cursor-pointer w-full sm:w-auto">
+              <a
+                href="#proiecte"
+                className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#e0e5ec] text-blue-600 font-bold shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover:shadow-[inset_6px_6px_12px_#bec3c9,inset_-6px_-6px_12px_rgba(255,255,255,0.5)] group-hover:scale-95 active:scale-[0.95] w-full"
+              >
                 Proiecte
-                <span className="font-mono font-black text-lg opacity-50 transition-all duration-300 group-hover/btn:translate-x-1 group-hover/btn:opacity-100">&gt;&gt;</span>
+                <span className="font-mono font-black text-lg opacity-50 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">&gt;&gt;</span>
               </a>
             </div>
-            
-            <div className="relative group/btn">
-              <a href="#contact" className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-blue-600 text-white font-bold shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 active:scale-[0.95]">
+
+            {/* Contact */}
+            <div className="relative group cursor-pointer w-full sm:w-auto">
+              <a
+                href="#contact"
+                className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-blue-600 text-white font-bold shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover:bg-blue-700 group-hover:-translate-y-1 active:scale-[0.95] w-full"
+              >
                 Contact
-                <span className="font-mono font-black text-lg opacity-50 transition-all duration-300 group-hover/btn:translate-y-1 group-hover/btn:opacity-100">&darr;</span> 
+                <span className="font-mono font-black text-lg opacity-50 transition-all duration-300 group-hover:translate-y-1 group-hover:opacity-100">&darr;</span>
               </a>
             </div>
 
