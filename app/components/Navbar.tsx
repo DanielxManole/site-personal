@@ -44,14 +44,14 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  const touchStartRef = useRef(0);
-
   const menuItems = [
     { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
     { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
     { id: "tehnologii", label: "COMPETENȚE", sub: "Stack Tehnic" },
     { id: "contact", label: "CONTACT", sub: "Hai să vorbim" },
   ];
+
+  const touchStartRef = useRef(0);
 
   // Scroll lock pentru meniul mobil
   useEffect(() => {
@@ -62,6 +62,46 @@ export default function Navbar() {
       document.body.style.overflow = "unset";
       document.body.style.overscrollBehavior = "unset";
     }
+  }, [isMobileMenuOpen]);
+  
+  // 🎯 NOU: LOGICA DE SWIPE PE TOT ECRANUL
+  useEffect(() => {
+    const minSwipeDistance = 70; // Distanța minimă de glisare
+    const marginThreshold = 50; // Swipe-ul de deschidere trebuie să înceapă de la primele 50px
+
+    // 1. Funcția de Start
+    const handleTouchStart = (e: TouchEvent) => {
+      // Stochează poziția X a primei atingeri
+      touchStartRef.current = e.touches[0].clientX;
+    };
+
+    // 2. Funcția de Final și Decizie
+    const handleTouchEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0].clientX;
+      const startX = touchStartRef.current;
+      const swipeDistance = endX - startX;
+      
+      // Swipe dreapta: deschide meniul
+      // Condiții: Swipe suficient de mare (> minSwipeDistance) ȘI începe de la margine (startX < marginThreshold)
+      if (swipeDistance > minSwipeDistance && startX < marginThreshold && !isMobileMenuOpen) {
+         setIsMobileMenuOpen(true);
+      }
+      
+      // Swipe stânga: închide meniul
+      if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    
+    // 🎯 ATAȘEAZĂ LISTENERS-II LA DOCUMENT:
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      // Curățare obligatorie
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
   }, [isMobileMenuOpen]);
 
   // Scroll progress + active section
@@ -117,7 +157,7 @@ export default function Navbar() {
 
   const pathname = usePathname();
   const isErrorPage = pathname !== '/';
-  const logoHref = isErrorPage ? '/' : '#top';
+  const logoHref = isErrorPage ? '/' : '#top';
 
   // Scroll to top logo
   const scrollToTop = () => {
@@ -129,25 +169,8 @@ export default function Navbar() {
     }
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const endX = e.changedTouches[0].clientX;
-    const startX = touchStartRef.current;
-    const swipeDistance = endX - startX;
-    
-    const minSwipeDistance = 50; 
-
-    if (swipeDistance > minSwipeDistance && !isMobileMenuOpen) {
-      setIsMobileMenuOpen(true);
-    }
-    
-    if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
-  };
+  // ❌ Am eliminat funcțiile locale handleTouchStart/handleTouchEnd de aici
+  // ele sunt acum în useEffect
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-20">
@@ -175,10 +198,12 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">
-                    ManoleDaniel.cad
-                  </span>
+                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">ManoleDaniel.cad</span>
                   <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
+                      <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
+                      <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z"/>
+                    </svg>
                     Part1
                   </span>
                 </div>
