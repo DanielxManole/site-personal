@@ -88,7 +88,6 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
 
-            {/* Proiecte */}
             <div className="relative group cursor-pointer w-full sm:w-auto">
               <a
                 href="#proiecte"
@@ -99,7 +98,6 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Contact */}
             <div className="relative group cursor-pointer w-full sm:w-auto">
               <a
                 href="#contact"

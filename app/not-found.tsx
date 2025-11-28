@@ -9,21 +9,21 @@ export default function NotFound() {
       <h1 className="text-9xl font-black text-slate-300/50 absolute z-0">404</h1>
       
       <div className="relative z-10 flex flex-col items-center">
-        {/* MODIFICARE AICI: text-yellow-600 și stroke="#DAA520" (sau alt galben închis) */}
+
         <div className="w-16 h-16 bg-[#e0e5ec] rounded-full shadow-[5px_5px_10px_#bec3c9,-5px_-5px_10px_rgba(255,255,255,0.8)] flex items-center justify-center mb-6">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 24 24" 
             fill="none" 
-            stroke="#DAA520" // <-- Galben închis (Goldenrod) pentru linii
+            stroke="#DAA520"
             strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round" 
-            className="w-8 h-8 text-yellow-600 drop-shadow-sm" // <-- Clasă Tailwind pentru galben închis
+            className="w-8 h-8 text-yellow-600 drop-shadow-sm"
           >
-            <path d="M12 2L1 21h22L12 2z" /> {/* Triunghiul de avertizare */}
-            <path d="M12 9v4" /> {/* Bara verticală */}
-            <path d="M12 17h.01" /> {/* Punctul de jos */}
+            <path d="M12 2L1 21h22L12 2z" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
           </svg>
         </div>
 
