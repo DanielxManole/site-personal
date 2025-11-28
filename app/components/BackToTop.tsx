@@ -1,33 +1,52 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const AnimatedBackToTopButton = ({
-  children,
-  className,
-  onClick,
-  isVisible,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  onClick: () => void;
-  isVisible: boolean;
-}) => {
+export default function BackToTop() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
   const [isPressed, setIsPressed] = useState(false);
+  const router = useRouter();
 
-  const handlePress = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsPressed(true);
+  const transitionClass = "transition-all duration-300 ease-out";
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+
+    const toggleVisibility = () => setIsVisible(window.scrollY > 400);
+
+    // Inițial
+    handleResize();
+    toggleVisibility();
+
+    window.addEventListener("scroll", toggleVisibility);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("scroll", toggleVisibility);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const handleScrollToTop = () => {
+    if (window.location.hash !== "#top") {
+      router.push("#top");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handlePress = () => setIsPressed(true);
   const handleRelease = () => {
-  setTimeout(() => {
-    setIsPressed(false);
     setTimeout(() => {
-      onClick();
-    }, 100);
-  }, 50);
+      setIsPressed(false);
+      setTimeout(() => {
+        handleScrollToTop();
+      }, 100);
+    }, 50);
   };
+
+  if (!isDesktop) return null; // ascunde pe ecrane <768px
 
   return (
     <button
@@ -41,47 +60,11 @@ const AnimatedBackToTopButton = ({
         fixed bottom-8 right-8 z-[9999]
         group p-0 py-1 cursor-pointer select-none
         transform-gpu transition-all duration-300 ease-out
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}
-        ${isPressed ? 'scale-95' : 'scale-100'}
-        ${className}
+        ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}
+        ${isPressed ? "scale-95" : "scale-100"}
+        ${transitionClass}
       `}
       aria-label="Back to top"
-    >
-      {children}
-    </button>
-  );
-};
-
-export default function BackToTop() {
-  const [isVisible, setIsVisible] = useState(false);
-  const router = useRouter();
-
-  const transitionClass = "transition-all duration-300 ease-out";
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      setIsVisible(window.scrollY > 400);
-    };
-
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
-
-  const handleScrollToTop = () => {
-    if (window.location.hash !== "#top") {
-      router.push("#top");
-    }
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  return (
-    <AnimatedBackToTopButton
-      onClick={handleScrollToTop}
-      isVisible={isVisible}
-      className={transitionClass}
     >
       <div
         className={`
@@ -106,6 +89,6 @@ export default function BackToTop() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 12l7-7 7 7" />
         </svg>
       </div>
-    </AnimatedBackToTopButton>
+    </button>
   );
 }
