@@ -3,9 +3,9 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ConsoleMsg from "./components/ConsoleMsg";
 import HashScroll from "./components/HashScroll";
-
 import Navbar from "./components/Navbar";
 import CADCursor from "./components/CADCursor"; 
+import GlobalPointerLock from "./components/GlobalPointerLock";
 
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ["latin"],
@@ -60,8 +60,8 @@ export default function RootLayout({
         <CADCursor />
         <HashScroll />
         <Navbar />
+        <GlobalPointerLock />
         {children}
-        
       </body>
     </html>
   );

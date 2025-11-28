@@ -66,42 +66,51 @@ export default function Navbar() {
   
   // 🎯 NOU: LOGICA DE SWIPE PE TOT ECRANUL
   useEffect(() => {
-    const minSwipeDistance = 70; // Distanța minimă de glisare
-    const marginThreshold = 50; // Swipe-ul de deschidere trebuie să înceapă de la primele 50px
+  const minSwipeDistance = 70; // distanța minimă pentru a considera swipe
+  const marginThreshold = 50; // swipe-ul trebuie să înceapă de la margine
+  const touchStartRef = { current: 0 };
+  const touchYRef = { current: 0 }; // pentru a detecta swipe vertical
 
-    // 1. Funcția de Start
-    const handleTouchStart = (e: TouchEvent) => {
-      // Stochează poziția X a primei atingeri
-      touchStartRef.current = e.touches[0].clientX;
-    };
+  const handleTouchStart = (e: TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+    touchYRef.current = e.touches[0].clientY;
+  };
 
-    // 2. Funcția de Final și Decizie
-    const handleTouchEnd = (e: TouchEvent) => {
-      const endX = e.changedTouches[0].clientX;
-      const startX = touchStartRef.current;
-      const swipeDistance = endX - startX;
-      
-      // Swipe dreapta: deschide meniul
-      // Condiții: Swipe suficient de mare (> minSwipeDistance) ȘI începe de la margine (startX < marginThreshold)
-      if (swipeDistance > minSwipeDistance && startX < marginThreshold && !isMobileMenuOpen) {
-         setIsMobileMenuOpen(true);
-      }
-      
-      // Swipe stânga: închide meniul
-      if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    
-    // 🎯 ATAȘEAZĂ LISTENERS-II LA DOCUMENT:
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+  const handleTouchMove = (e: TouchEvent) => {
+    const deltaX = e.touches[0].clientX - touchStartRef.current;
+    const deltaY = e.touches[0].clientY - touchYRef.current;
 
-    return () => {
-      // Curățare obligatorie
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
+    // dacă swipe orizontal mai mare decât vertical, prevenim scroll-ul vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+      e.preventDefault(); // oprește scroll vertical când detectează swipe
+    }
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    const endX = e.changedTouches[0].clientX;
+    const swipeDistance = endX - touchStartRef.current;
+
+    // Swipe dreapta → deschide meniul dacă e pe margine și nu e deja deschis
+    if (swipeDistance > minSwipeDistance && touchStartRef.current < marginThreshold && !isMobileMenuOpen) {
+      setIsMobileMenuOpen(true);
+    }
+
+    // Swipe stânga → închide meniul dacă e deschis
+    if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  // Atașăm listener-ele pe document
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, { passive: false });
+
+  return () => {
+    document.removeEventListener("touchstart", handleTouchStart);
+    document.removeEventListener("touchmove", handleTouchMove);
+    document.removeEventListener("touchend", handleTouchEnd);
+  };
   }, [isMobileMenuOpen]);
 
   // Scroll progress + active section
