@@ -74,8 +74,8 @@ export default function Footer() {
                   onClick={handleEmailClick}
                   className={`
                     w-full flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg 
-                    shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-200 ease-out 
-                    group-hover/btn:bg-blue-700 group-hover/btn:-translate-y-1 
+                    shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-300 ease-out 
+                    group-hover/btn:scale-95 active:scale-[0.95]">
                     ${isBtnClicked === 'email' ? 'scale-[0.95]' : 'scale-100 active:scale-[0.95]'} cursor-pointer
                   `}
                 >
