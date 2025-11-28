@@ -44,13 +44,11 @@ export default function CADCursor() {
 
   if (!hasMouse) return null;
 
-  // Variabila pentru sincronizare perfecta (toate elementele se misca in 0.5s cu acelasi easing)
   const transitionClass = "transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]";
 
   return (
     <div className="fixed bottom-8 left-8 z-[9999]">
       
-      {/* HITBOX STABIL */}
       <div 
         onClick={handleClick}
         onMouseLeave={handleMouseLeave}
@@ -62,7 +60,6 @@ export default function CADCursor() {
         `}
       >
 
-        {/* ELEMENT VIZUAL */}
         <div className={`
             absolute left-0 top-0 h-full
             flex items-center overflow-hidden
@@ -81,7 +78,6 @@ export default function CADCursor() {
             }
         `}>
 
-            {/* LED */}
             <div className="w-12 h-full flex items-center justify-center flex-shrink-0 z-10">
                 <div className={`
                     w-3 h-3 rounded-full 
@@ -96,7 +92,6 @@ export default function CADCursor() {
                 `}></div>
             </div>
 
-            {/* TEXT COORDONATE */}
             <div className={`
                 /* AM SCOS justify-center și flex-1. Textul e stanga. */
                 flex items-center whitespace-nowrap

@@ -8,24 +8,17 @@ export default function Footer() {
   const { ref, isVisible } = useScrollReveal(0.4);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // State-ul isBtnClicked va urmări ACUM doar butonul de Email
   const [isBtnClicked, setIsBtnClicked] = useState<string | null>(null);
 
-  // Funcție dedicată pentru butonul de Email (cu Delay)
-  const [isProcessingEmail, setIsProcessingEmail] = useState(false);
   const handleEmailClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    if (isProcessingEmail) return; // ❗ Blochează apăsările multiple
-    setIsProcessingEmail(true);
-
-    setIsBtnClicked("email");
+    
+    setIsBtnClicked('email');
 
     setTimeout(() => {
-      setIsBtnClicked(null);
-      setIsModalOpen(true);
-      setIsProcessingEmail(false); // deblochează
-    }, 300);
+        setIsBtnClicked(null);
+        setIsModalOpen(true);
+    }, 150);
   };
 
 
@@ -50,7 +43,6 @@ export default function Footer() {
           transform-gpu 
         ">
           
-          {/* Șuruburi decorative - rămân la fel */}
           <div className="absolute top-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
           <div className="absolute top-4 right-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
           <div className="absolute bottom-4 left-4 w-4 h-4 rounded-full bg-slate-300 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)] border border-slate-400 group-hover:rotate-360 transition-transform duration-1000 flex items-center justify-center"><div className="w-full h-px bg-slate-500"></div></div>
@@ -77,11 +69,9 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
             
-            {/* BUTON EMAIL (CU DELAY ȘI ANIMAȚIE) */}
             <div className="relative group/btn w-full sm:w-auto">
                 <button 
-                  onPointerDown={handleEmailClick}
-                  onClick={(e) => e.preventDefault()}
+                  onClick={handleEmailClick}
                   className={`
                     w-full flex items-center justify-center gap-2 px-10 py-4 rounded-xl bg-blue-600 text-white font-bold text-lg 
                     shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transform-gpu transition-all duration-200 ease-out 
@@ -93,7 +83,6 @@ export default function Footer() {
                 </button>
             </div>
   
-            {/* BUTON LINKEDIN (FĂRĂ DELAY, NAVIGARE INSTANT) */}
             <div className="relative group/btn w-full sm:w-auto">
                 <a 
                     href="https://www.linkedin.com/in/manoledaniel/" 

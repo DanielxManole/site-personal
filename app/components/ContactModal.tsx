@@ -15,22 +15,23 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
-  // Animatii mount/unmount
   const [showModal, setShowModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  // State pentru click animatii
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
-  // --- Scroll lock doar pe device touch ---
   useEffect(() => {
     if (!isOpen) return;
 
     const isMobile = window.matchMedia("(hover: none)").matches;
     if (isMobile) {
-        // Salvează poziția curentă a scroll-ului
         const scrollY = window.scrollY;
+
+        const html = document.documentElement;
+        const prevScrollBehavior = html.style.scrollBehavior;
+        html.style.scrollBehavior = "auto";
+
         document.body.style.position = "fixed";
         document.body.style.top = `-${scrollY}px`;
         document.body.style.left = "0";
@@ -38,25 +39,26 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         document.body.style.overflow = "hidden";
         document.body.style.width = "100%";
 
-        // Previi scroll-ul prin touch în fundal
         const preventTouch = (e: TouchEvent) => e.preventDefault();
         document.addEventListener("touchmove", preventTouch, { passive: false });
 
         return () => {
         document.removeEventListener("touchmove", preventTouch);
+
         document.body.style.position = "";
         document.body.style.top = "";
         document.body.style.left = "";
         document.body.style.right = "";
         document.body.style.overflow = "";
         document.body.style.width = "";
-        // readuce scroll-ul la poziția anterioară
+
         window.scrollTo(0, scrollY);
+
+        html.style.scrollBehavior = prevScrollBehavior;
         };
     }
     }, [isOpen]);
 
-  // --- Animatie deschidere/inchidere ---
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
     let animationFrame: number;
@@ -84,7 +86,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     };
   }, [isOpen]);
 
-  // ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -93,14 +94,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // Puls pentru erori
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Cronometru SUCCESS
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -218,7 +217,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}
           h-[70vh] md:h-auto overflow-auto pt-[4rem] md:pt-8`}
       >
-        {/* Buton inchidere */}
         <button
           onClick={() => {
             setCloseBtnClicked(true);

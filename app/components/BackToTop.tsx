@@ -16,7 +16,6 @@ export default function BackToTop() {
 
     const toggleVisibility = () => setIsVisible(window.scrollY > 400);
 
-    // Inițial
     handleResize();
     toggleVisibility();
 
@@ -46,7 +45,7 @@ export default function BackToTop() {
     }, 50);
   };
 
-  if (!isDesktop) return null; // ascunde pe ecrane <768px
+  if (!isDesktop) return null;
 
   return (
     <button
