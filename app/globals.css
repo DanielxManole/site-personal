@@ -93,3 +93,10 @@ textarea:focus-visible {
 button, a {
   touch-action: manipulation;
 }
+
+.modal-open-neumorphism {
+    overflow: hidden; /* Blochează derularea verticală */
+    height: 100vh;    /* Stabilește înălțimea la 100% din viewport */
+    position: fixed;  /* Face body-ul fix, prevenind derularea pe iOS */
+    width: 100%;      /* Asigură lățimea completă */
+}
