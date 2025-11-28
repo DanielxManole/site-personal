@@ -26,20 +26,35 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   // --- Scroll lock doar pe device touch ---
   useEffect(() => {
     if (!isOpen) return;
+
     const isMobile = window.matchMedia("(hover: none)").matches;
     if (isMobile) {
-      document.body.style.overflow = "hidden";
-      document.body.style.position = "fixed";
-      document.body.style.width = "100%";
-    }
-    return () => {
-      if (isMobile) {
-        document.body.style.overflow = "";
+        // Salvează poziția curentă a scroll-ului
+        const scrollY = window.scrollY;
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.overflow = "hidden";
+        document.body.style.width = "100%";
+
+        // Previi scroll-ul prin touch în fundal
+        const preventTouch = (e: TouchEvent) => e.preventDefault();
+        document.addEventListener("touchmove", preventTouch, { passive: false });
+
+        return () => {
+        document.removeEventListener("touchmove", preventTouch);
         document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.overflow = "";
         document.body.style.width = "";
-      }
-    };
-  }, [isOpen]);
+        // readuce scroll-ul la poziția anterioară
+        window.scrollTo(0, scrollY);
+        };
+    }
+    }, [isOpen]);
 
   // --- Animatie deschidere/inchidere ---
   useEffect(() => {
@@ -318,5 +333,3 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     </div>
   );
 }
-
-
