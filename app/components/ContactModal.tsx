@@ -15,14 +15,33 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
-  // --- Stări pentru animații ---
-  const [showModal, setShowModal] = useState(false); 
-  const [isMounted, setIsMounted] = useState(false); 
+  // Animatii mount/unmount
+  const [showModal, setShowModal] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // --- State-uri pentru animatii delay ---
+  // State pentru click animatii
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
+  // --- Scroll lock doar pe device touch ---
+  useEffect(() => {
+    if (!isOpen) return;
+    const isMobile = window.matchMedia("(hover: none)").matches;
+    if (isMobile) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    }
+    return () => {
+      if (isMobile) {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.width = "";
+      }
+    };
+  }, [isOpen]);
+
+  // --- Animatie deschidere/inchidere ---
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
     let animationFrame: number;
@@ -30,7 +49,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (isOpen) {
       setShowModal(true);
       animationFrame = requestAnimationFrame(() => setIsMounted(true));
-      document.body.classList.add('modal-open-neumorphism');
+      document.body.classList.add("modal-open-neumorphism");
     } else {
       setIsMounted(false);
       domTimer = setTimeout(() => {
@@ -40,13 +59,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setFormData({ numele: "", email: "", mesajul: "" });
         setCountdown(3);
       }, 300);
-      document.body.classList.remove('modal-open-neumorphism');
+      document.body.classList.remove("modal-open-neumorphism");
     }
 
     return () => {
       clearTimeout(domTimer);
       cancelAnimationFrame(animationFrame);
-      document.body.classList.remove('modal-open-neumorphism');
+      document.body.classList.remove("modal-open-neumorphism");
     };
   }, [isOpen]);
 
@@ -128,7 +147,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     e.preventDefault();
     if (!validateForm()) return;
     setStatus("SENDING");
-    
+
     if (!form.current) return;
 
     const formDataObj = new FormData(form.current);
@@ -163,23 +182,28 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   }`;
 
   const inputClass = (hasError: boolean) =>
-    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 **h-12** text-slate-700 font-medium outline-none 
-     shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
-      hasError ? "animate-shake border-red-500" : ""
-    }`;
+    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
+     shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
+       hasError ? "animate-shake border-red-500" : ""
+     }`;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div
-        className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${isMounted ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${
+          isMounted ? "opacity-100" : "opacity-0"
+        }`}
         onClick={onClose}
       />
 
       <div
-        className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)] border border-white/50 transform transition-all duration-300 ${
-          isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"
-        }`}
+        className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl
+          shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
+          border border-white/50 transform transition-all duration-300
+          ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}
+          h-[90vh] md:h-auto overflow-auto`}
       >
+        {/* Buton inchidere */}
         <button
           onClick={() => {
             setCloseBtnClicked(true);
@@ -289,9 +313,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           100% { transform: translateX(0); }
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
-        input, textarea {
-            line-height: 1 !important; 
-        }
+        input, textarea { line-height: 1 !important; }
       `}</style>
     </div>
   );
