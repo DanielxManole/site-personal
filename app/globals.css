@@ -85,3 +85,7 @@ textarea:focus-visible {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #155DFC;
 }
+
+.modal-open-neumorphism {
+    background-color: #e0e5ec !important;
+}

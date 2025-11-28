@@ -30,6 +30,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (isOpen) {
       setShowModal(true);
       animationFrame = requestAnimationFrame(() => setIsMounted(true));
+      document.body.classList.add('modal-open-neumorphism');
     } else {
       setIsMounted(false);
       domTimer = setTimeout(() => {
@@ -39,11 +40,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setFormData({ numele: "", email: "", mesajul: "" });
         setCountdown(3);
       }, 300);
+      document.body.classList.remove('modal-open-neumorphism');
     }
 
     return () => {
       clearTimeout(domTimer);
       cancelAnimationFrame(animationFrame);
+      document.body.classList.remove('modal-open-neumorphism');
     };
   }, [isOpen]);
 
@@ -160,7 +163,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   }`;
 
   const inputClass = (hasError: boolean) =>
-    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
+    `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none 
+     // Adăugăm leading-tight pentru a stabiliza line-height pe mobil
+     leading-tight
+     shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
       hasError ? "animate-shake border-red-500" : ""
     }`;
 
@@ -184,7 +190,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               onClose();
             }, 150);
           }}
-          className={`absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] text-slate-500 flex items-center justify-center shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] transition-all
+          className={`absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] select-none text-slate-500 flex items-center justify-center shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] transition-all
             ${closeBtnClicked ? "scale-[0.95]" : "scale-100"} 
             active:scale-95 hover:text-blue-400`}
         >
@@ -202,7 +208,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             </div>
             <div className="w-full h-px bg-slate-300/50"></div>
             <div className="flex flex-col items-center">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Se închide automat în</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fereastra se închide automat în</p>
               <div className="text-6xl font-black text-slate-700">{countdown}</div>
             </div>
           </div>
@@ -254,7 +260,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   sendEmail(e as unknown as React.FormEvent);
                 }, 150);
               }}
-              className={`w-full py-4 rounded-xl font-bold text-white shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_white] transition-all active:scale-[0.95] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)] flex justify-center items-center gap-2 ${
+              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_white] transition-all active:scale-[0.95] active:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)] flex justify-center items-center gap-2 ${
                 status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
               } ${emailBtnClicked ? "scale-[0.95]" : "scale-100"}`}
             >
