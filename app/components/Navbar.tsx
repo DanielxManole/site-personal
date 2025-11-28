@@ -44,6 +44,8 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
+  const touchStartRef = useRef(0);
+
   const menuItems = [
     { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
     { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
@@ -124,6 +126,26 @@ export default function Navbar() {
 
     } else {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const endX = e.changedTouches[0].clientX;
+    const startX = touchStartRef.current;
+    const swipeDistance = endX - startX;
+    
+    const minSwipeDistance = 50; 
+
+    if (swipeDistance > minSwipeDistance && !isMobileMenuOpen) {
+      setIsMobileMenuOpen(true);
+    }
+    
+    if (swipeDistance < -minSwipeDistance && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
     }
   };
 
