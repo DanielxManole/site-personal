@@ -201,6 +201,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
        hasError ? "animate-shake border-red-500" : ""
      }`;
 
+     const [closing, setClosing] = useState(false);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div
@@ -219,10 +221,15 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       >
         <button
           onClick={() => {
+            if (closing) return;   // 🛑 previne dublu-tap pe iPhone
+            setClosing(true);
+
             setCloseBtnClicked(true);
+
             setTimeout(() => {
               setCloseBtnClicked(false);
               onClose();
+              setClosing(false);
             }, 150);
           }}
           className={`absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] select-none text-slate-500 flex items-center justify-center shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] transition-all
@@ -287,17 +294,9 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             <button
               type="submit"
               disabled={status === "SENDING"}
-              onClick={(e) => {
-                e.preventDefault();
-                setEmailBtnClicked(true);
-                setTimeout(() => {
-                  setEmailBtnClicked(false);
-                  sendEmail(e as unknown as React.FormEvent);
-                }, 150);
-              }}
-              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:scale-95 ${
-                status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              } ${emailBtnClicked ? "scale-[0.95]" : "scale-100"}`}
+              className={`w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-150
+                ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
+                active:scale-95`}
             >
               {status === "SENDING" ? (
                 <>
