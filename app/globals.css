@@ -89,3 +89,7 @@ textarea:focus-visible {
 .modal-open-neumorphism {
     background-color: #e0e5ec !important;
 }
+
+button, a {
+  touch-action: manipulation;
+}
