@@ -15,6 +15,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
+  const [closing, setClosing] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -200,8 +202,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
      shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white] transition-all placeholder:text-slate-400 ${
        hasError ? "animate-shake border-red-500" : ""
      }`;
-
-     const [closing, setClosing] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
