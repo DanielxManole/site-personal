@@ -289,6 +289,9 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           100% { transform: translateX(0); }
         }
         .animate-shake { animation: shake 0.3s ease-in-out; }
+        input, textarea {
+            line-height: 1 !important; 
+        }
       `}</style>
     </div>
   );
