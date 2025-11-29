@@ -63,13 +63,21 @@ export default function About() {
                   </div>
 
                   <div className="relative group/btn w-full select-none">
-                    <a 
-                      href="/CV.pdf" 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)] transition-all duration-300 ease-out group-hover/btn:scale-95 active:scale-[0.95]">
+                    <button
+                      onClick={() => window.open("/CV.pdf", "_blank")}
+                      onTouchStart={() => {
+                        setTimeout(() => {}, 0); // optional: debounce pentru animatie
+                      }}
+                      className={`
+                        flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm
+                        shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)]
+                        transform-gpu transition-all duration-300 ease-out
+                        active:scale-[0.95]
+                        md:group-hover/btn:scale-95
+                      `}
+                    >
                       <span className="text-lg">📄</span> VEZI CV / RESUME
-                    </a>
+                    </button>
                   </div>
 
                 </div>
