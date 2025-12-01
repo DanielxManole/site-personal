@@ -49,6 +49,27 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       document.body.classList.remove("modal-open-neumorphism");
     };
   }, [isOpen]);
+  
+useEffect(() => {
+  const isMobile = window.innerWidth <= 767;
+  if (isOpen && isMobile) {
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflowY = 'scroll';
+    
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflowY = '';
+      window.scrollTo(0, scrollY);
+    };
+  }
+}, [isOpen]);
 
   // ESC close
   useEffect(() => {
@@ -136,7 +157,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   // Send email
   const sendEmail = async (e: React.FormEvent) => {
-    e.preventDefault(); // ok aici
+    e.preventDefault(); 
     if (!validateForm()) return;
 
     setStatus("SENDING");
@@ -162,7 +183,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     }
   };
 
-  // Warning icon component (shake on error)
+  // Warning icon component
   const WarningIcon = ({ shake }: { shake?: boolean }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -183,8 +204,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   const inputClass = (hasError: boolean) =>
     `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
-     shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] 
-     focus:shadow-[inset_4px_4px_8px_#b1b5b9,inset_-4px_-4px_8px_white]
+     shadow-[inset_3px_3px_6px_#bec3c9] 
+     focus:shadow-[inset_4px_4px_8px_#b1b5b9]
      transition-all placeholder:text-slate-400 
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
@@ -202,7 +223,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
         border border-white/50 
         transform transition-all duration-300 
-        ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
+        ${isMounted ? "translate-x-0 opacity-100" : "-translate-x-50 opacity-0"}`}
       >
         {/* CLOSE BUTTON */}
         <button
@@ -214,15 +235,15 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             }, 150);
           }}
           className={`
+            mobile-close-btn 
+
             absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
             text-slate-500 flex items-center justify-center 
-            shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] 
+            shadow-[3px_3px_6px_#bec3c9] 
             transition-all select-none
 
             md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
             md:active:scale-95 md:hover:text-blue-400
-
-            active:opacity-70
           `}
         >
           ✕
@@ -237,7 +258,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         {status === "SUCCESS" ? (
           <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="flex flex-col items-center text-green-600">
-              <div className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9,inset_-4px_-4px_8px_white] flex items-center justify-center text-3xl mb-2">
+              <div className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2">
                 ✓
               </div>
               <p className="font-bold text-lg">Mesaj trimis cu succes!</p>
@@ -304,13 +325,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 setTimeout(() => setEmailBtnClicked(false), 150);
               }}
               className={`
+                mobile-submit-gradient /* Aici se aplica stilul corect */
+
                 w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
-                shadow-[6px_6px_12px_#bec3c9,-6px_-6px_12px_white]
+                shadow-[6px_6px_12px_#bec3c9]
                 transition-all flex justify-center items-center gap-2
 
                 md:active:scale-[0.95]
                 md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
-                active:opacity-80
 
                 ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
               `}
@@ -336,27 +358,68 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
       <style jsx>{`
         @keyframes shake {
-          0% {
-            transform: translateX(0);
-          }
-          20% {
-            transform: translateX(-4px);
-          }
-          40% {
-            transform: translateX(4px);
-          }
-          60% {
-            transform: translateX(-4px);
-          }
-          80% {
-            transform: translateX(4px);
-          }
-          100% {
-            transform: translateX(0);
-          }
+          0% { transform: translateX(0); }
+          20% { transform: translateX(-4px); }
+          40% { transform: translateX(4px); }
+          60% { transform: translateX(-4px); }
+          80% { transform: translateX(4px); }
+          100% { transform: translateX(0); }
         }
         .animate-shake {
           animation: shake 0.3s ease-in-out;
+        }
+
+        @media (max-width: 767px) {
+          
+          /* --- BUTONUL DE SUBMIT (Reparat) --- */
+          .mobile-submit-gradient {
+            /* 1. Gradientul CORECT (Blue-700 -> Blue-600 -> Blue-700) */
+            background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%) !important;
+            
+            /* 2. IMPORTANT: Marimea 200% pentru ca animatia sa mearga */
+            background-size: 200% auto !important;
+            
+            /* 3. IMPORTANT: Transparenta pentru a nu se vedea bg-blue-600 de sub */
+            background-color: transparent !important;
+            
+            color: white !important;
+            border: none !important;
+            
+            /* 4. Umbra identica cu celelalte butoane */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
+            
+            transition: background-position 0.5s ease !important;
+            transform: none !important;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          .mobile-submit-gradient:active {
+            background-position: right center !important;
+            transform: none !important;
+          }
+
+          /* Cand se trimite (disabled), il facem gri */
+          .mobile-submit-gradient:disabled {
+             background: #94a3b8 !important; /* slate-400 */
+             background-image: none !important;
+             cursor: not-allowed !important;
+             box-shadow: none !important;
+          }
+
+          /* --- BUTONUL DE CLOSE (X) --- */
+          .mobile-close-btn {
+            transform: none !important;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.1s ease !important;
+          }
+          .mobile-close-btn:active {
+            color: #ef4444 !important; 
+            opacity: 0.7 !important;
+          }
+          .mobile-close-btn:hover {
+            transform: none !important;
+            color: #64748b; 
+          }
         }
       `}</style>
     </div>

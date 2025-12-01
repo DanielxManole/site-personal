@@ -23,9 +23,26 @@ const config: Config = {
           "50%": { opacity: "1", transform: "scale(1.25)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        bounceFromDown: {
+          "0%, 100%": { transform: "translateY(0%)", animationTimingFunction: "cubic-bezier(0.8,0,1,1)" },
+          "50%": { transform: "translateY(-25%)", animationTimingFunction: "cubic-bezier(0,0,0.2,1)" },
+        },
+        // --- AICI AM ADAUGAT ANIMATIA ORIZONTALA ---
+        "bounce-x": {
+          "0%, 100%": {
+            transform: "translateX(0)",
+            animationTimingFunction: "cubic-bezier(0.8, 0, 1, 1)",
+          },
+          "50%": {
+            transform: "translateX(25%)",
+            animationTimingFunction: "cubic-bezier(0, 0, 0.2, 1)",
+          },
+        },
       },
       animation: {
-        countdown: "countdown 1s ease-in-out forwards",
+        "bounce-from-down": "bounceFromDown 1s infinite",
+        // --- AICI AM ACTIVAT ANIMATIA ---
+        "bounce-x": "bounce-x 1s infinite",
       },
     },
   },

@@ -53,15 +53,23 @@ export default function Navbar() {
   const touchStartRef = useRef(0);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-      document.body.style.overscrollBehavior = "none";
-    } else {
-      document.body.style.overflow = "unset";
-      document.body.style.overscrollBehavior = "unset";
-    }
-  }, [isMobileMenuOpen]);
+  if (isMobileMenuOpen) {
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100%";
+    document.documentElement.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+    document.body.style.height = "";
+    document.documentElement.style.overflow = "";
+  }
+}, [isMobileMenuOpen]);
   
+useEffect(() => {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 50);
+}, []);
+
   useEffect(() => {
   const minSwipeDistance = 70;
   const marginThreshold = 50;
@@ -171,7 +179,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-20">
-      <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300">
+      <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
             <div className="flex-shrink-0 z-50">
@@ -269,7 +277,6 @@ export default function Navbar() {
         className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
           isMobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
         }`}
-        style={{ touchAction: "none" }}
       >
         <div
           className="absolute inset-0 pointer-events-none opacity-20"

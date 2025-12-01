@@ -3,6 +3,7 @@
 import React from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import Image from 'next/image';
+import GradientButton from './GradientButton'; // <--- IMPORTAM COMPONENTA
 
 export default function About() {
   const { ref, isVisible } = useScrollReveal(0.4); 
@@ -62,22 +63,22 @@ export default function About() {
                     <span className="text-xs font-mono text-slate-500 select-none">AVAILABLE FOR HIRE</span>
                   </div>
 
-                  <div className="relative group/btn w-full select-none">
-                    <button
-                      onClick={() => window.open("/CV.pdf", "_blank")}
-                      onTouchStart={() => {
-                        setTimeout(() => {}, 0); // optional: debounce pentru animatie
-                      }}
-                      className={`
-                        flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm
-                        shadow-[6px_6px_12px_#a1a6ac,-6px_-6px_12px_rgba(255,255,255,0.5)]
-                        transform-gpu transition-all duration-300 ease-out
-                        active:scale-[0.95]
-                        md:group-hover/btn:scale-95
-                      `}
+                  {/* --- BUTON CV (GradientButton) --- */}
+                  <div className="relative w-full select-none">
+                    <GradientButton 
+                      variant="blue" 
+                      href="/CV.pdf"       
+                      target="_blank"      
+                      className="w-full sm:!w-full" 
                     >
-                      <span className="text-lg">📄</span> VEZI CV / RESUME
-                    </button>
+                       {/* Am adăugat un container flex pentru aliniere */}
+                       <span className="flex items-center justify-center gap-2">
+                          <span className="text-lg">📄</span> 
+                          
+                          {/* AICI ESTE MODIFICAREA: text-sm (mic) sau text-xs (foarte mic) */}
+                          <span className="text-lg font-bold tracking-wide">VEZI CV</span>
+                       </span>
+                    </GradientButton>
                   </div>
 
                 </div>
@@ -105,7 +106,7 @@ export default function About() {
                 <span className="text-blue-600">01.</span> BIO_LOG
               </h3>
               <div className="text-base text-slate-600 leading-relaxed mb-10 font-medium space-y-4"> 
-                <p>Student în anul 3 la <strong>Facultatea de Inginerie Industrială și Robotică</strong>, din cadrul <strong>Politehnica București</strong>.</p>
+                <p>Student în anul al III-lea la <strong>Facultatea de Inginerie Industrială și Robotică</strong>, din cadrul <strong>Politehnica București</strong>.</p>
                 <p>Sunt pasionat de CAD, Programare, Robotică, Machine Learning și Baze de Date, cu un talent pentru rezolvarea creativă a problemelor și livrarea de rezultate bune, fiind o persoană adaptabilă.</p>
               </div>
 
@@ -115,7 +116,7 @@ export default function About() {
               <div className="space-y-6 relative pl-6 border-l-2 border-slate-200 ml-2 mb-10">
                 <div className="relative">
                   <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-[#e0e5ec]"></div>
-                  <h4 className="font-bold text-slate-800">Internship Departamentul Dezvoltare Produs</h4>
+                  <h4 className="font-bold text-slate-800">Internship - Departamentul pentru Dezvoltarea Produsului</h4>
                   <p className="text-sm text-slate-500 font-mono">Saint-Gobain Sekurit{'\u00A0'}| Iunie{'\u00A0'}{'\u2011'}{'\u00A0'}August{'\u00A0'}2025</p>
                   <ul className="text-sm text-slate-600 mt-2 ml-4 list-disc space-y-1">
                     <li>Pregătirea și ajustarea sitelor de printare 2D pentru proiecte auto (Renault Master III, VW Touran II).</li>
@@ -151,12 +152,12 @@ export default function About() {
                   </h3>
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
-                      <p className="text-sm font-bold text-slate-700">Python Certificate</p>
+                      <p className="text-sm font-bold text-slate-700">Python Certificate <Image src="/images/hackerrank.png" alt="Logo" width={20} height={20} className="inline-block translate-y-[-1px] object-contain ml-1 select-none"/></p>
                       <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                     </div>
-                    
+
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
-                      <p className="text-sm font-bold text-slate-700">Software Engineer Intern Certificate</p>
+                      <p className="text-sm font-bold text-slate-700">Software Engineer Intern Certificate <Image src="/images/hackerrank.png" alt="Logo" width={20} height={20} className="inline-block translate-y-[-1px] object-contain ml-1 select-none"/></p>
                       <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                     </div>
 

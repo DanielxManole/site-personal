@@ -86,16 +86,24 @@ textarea:focus-visible {
   background-color: #155DFC;
 }
 
-.modal-open-neumorphism {
-    background-color: #e0e5ec !important;
-}
-
 button, a {
   touch-action: manipulation;
 }
 
 .modal-open-neumorphism {
-    overflow: hidden;
+  background-color: #e0e5ec !important;
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .modal-open-neumorphism {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow-y: scroll;
+  }
 }
 
 @keyframes shake {
@@ -109,4 +117,8 @@ button, a {
   .animate-shake {
     animation: shake 300ms ease-in-out;
   }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25%); }
 }
