@@ -59,9 +59,9 @@ export default function RootLayout({
       {/* 2. AM ADAUGAT min-h-screen PE BODY CA SA OCUPE TOT ECRANUL */ }
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased opacity-0 fade-in-on-load`}>
         
+        <HashScroll />
         <ConsoleMsg />
         <CADCursor />
-        <HashScroll />
         <Navbar />
         <GlobalPointerLock />
         {children}

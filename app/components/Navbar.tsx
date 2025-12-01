@@ -63,12 +63,6 @@ export default function Navbar() {
     document.documentElement.style.overflow = "";
   }
 }, [isMobileMenuOpen]);
-  
-useEffect(() => {
-  setTimeout(() => {
-    window.scrollTo(0, 0);
-  }, 50);
-}, []);
 
   useEffect(() => {
   const minSwipeDistance = 70;

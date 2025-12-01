@@ -122,3 +122,24 @@ button, a {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-25%); }
 }
+
+button,
+input[type="submit"],
+a,
+label {
+  -webkit-user-select: none;   /* Safari / iOS */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* IE/Edge */
+  user-select: none;           /* Standard */
+
+  -webkit-tap-highlight-color: transparent; /* Elimină highlight la touch */
+  touch-action: manipulation;  /* Gesturi touch simple */
+
+  cursor: pointer;             /* Cursor pointer pe desktop */
+  outline: none;               /* Elimină conturul la click (opțional) */
+}
+
+/* Dacă vrei, poți să dezactivezi selecția și pe textul general interactiv */
+label, a, button, input[type="submit"] {
+  -webkit-touch-callout: none; /* Dezactivează meniul contextual pe iOS */
+}

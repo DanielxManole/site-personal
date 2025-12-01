@@ -29,6 +29,11 @@ export default function BackToTop() {
   }, []);
 
   const handleScrollToTop = () => {
+    // 1. CHEIA SUCCESULUI:
+    // Emităm manual evenimentul 'hashchange'.
+    // ContactModal ascultă acest eveniment și se va închide imediat.
+    window.dispatchEvent(new Event("hashchange"));
+
     if (window.location.hash !== "#top") {
       router.push("#top");
     }

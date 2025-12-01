@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+// 1. IMPORTĂM usePathname
+import { usePathname } from "next/navigation";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -21,7 +23,60 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
-  // OPEN / CLOSE modal
+  // 2. FOLOSIM HOOK-UL PENTRU A DETECTA SCHIMBAREA PAGINII
+  const pathname = usePathname();
+
+  // ---------------------------------------------------------
+  // 3. LOGICA NOUĂ: AUTO-CLOSE LA NAVIGARE
+  // ---------------------------------------------------------
+  
+  // A. Închide modalul dacă se schimbă pagina (/despre -> /proiecte)
+  useEffect(() => {
+    if (isOpen) {
+      onClose();
+    }
+  }, [pathname]); // Dependința pathname declanșează efectul la schimbarea rutei
+
+  // B. Închide modalul dacă se schimbă hash-ul (#contact -> #home)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (isOpen) onClose();
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [isOpen, onClose]);
+
+  // ---------------------------------------------------------
+  // END LOGICA NOUĂ
+  // ---------------------------------------------------------
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleGlobalLinkClick = (e: MouseEvent) => {
+      // Verificăm dacă elementul clickuit este un link sau e în interiorul unui link
+      const target = (e.target as HTMLElement).closest("a");
+      
+      if (target) {
+        const href = target.getAttribute("href");
+        // Dacă userul dă click pe ORICE link intern (ancoră), închidem modalul
+        if (href && (href.startsWith("#") || href.includes("/#"))) {
+           // Un mic delay pentru a permite browserului să proceseze click-ul înainte de unmount
+           setTimeout(() => onClose(), 10);
+        }
+      }
+    };
+
+    // 'true' activează faza de captură (prinde click-ul înainte să fie blocat de alte scripturi)
+    window.addEventListener("click", handleGlobalLinkClick, true);
+
+    return () => {
+      window.removeEventListener("click", handleGlobalLinkClick, true);
+    };
+  }, [isOpen, onClose]);
+
+  // OPEN / CLOSE modal logic existent...
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
     let animationFrame: number;
@@ -50,26 +105,27 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     };
   }, [isOpen]);
   
-useEffect(() => {
-  const isMobile = window.innerWidth <= 767;
-  if (isOpen && isMobile) {
-    const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.style.overflowY = 'scroll';
-    
-    return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflowY = '';
-      window.scrollTo(0, scrollY);
-    };
-  }
-}, [isOpen]);
+  // Prevent Scroll on Mobile logic existent...
+  useEffect(() => {
+    const isMobile = window.innerWidth <= 767;
+    if (isOpen && isMobile) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflowY = 'scroll';
+      
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.overflowY = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
 
   // ESC close
   useEffect(() => {
@@ -99,7 +155,7 @@ useEffect(() => {
 
   if (!showModal) return null;
 
-  // Form input handling
+  // ... Restul codului (handleInputChange, validateForm, render, style) rămâne neschimbat
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;
@@ -155,7 +211,6 @@ useEffect(() => {
     }, 300);
   };
 
-  // Send email
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!validateForm()) return;
@@ -183,7 +238,6 @@ useEffect(() => {
     }
   };
 
-  // Warning icon component
   const WarningIcon = ({ shake }: { shake?: boolean }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +279,6 @@ useEffect(() => {
         transform transition-all duration-300 
         ${isMounted ? "translate-x-0 opacity-100" : "-translate-x-50 opacity-0"}`}
       >
-        {/* CLOSE BUTTON */}
         <button
           onClick={() => {
             setCloseBtnClicked(true);
@@ -236,12 +289,10 @@ useEffect(() => {
           }}
           className={`
             mobile-close-btn 
-
             absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
             text-slate-500 flex items-center justify-center 
             shadow-[3px_3px_6px_#bec3c9] 
             transition-all select-none
-
             md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
             md:active:scale-95 md:hover:text-blue-400
           `}
@@ -254,7 +305,6 @@ useEffect(() => {
           // SECURE_CONNECTION
         </p>
 
-        {/* SUCCESS SCREEN */}
         {status === "SUCCESS" ? (
           <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="flex flex-col items-center text-green-600">
@@ -316,7 +366,6 @@ useEffect(() => {
               </div>
             ))}
 
-            {/* SUBMIT BUTTON */}
             <button
               type="submit"
               disabled={status === "SENDING"}
@@ -325,15 +374,12 @@ useEffect(() => {
                 setTimeout(() => setEmailBtnClicked(false), 150);
               }}
               className={`
-                mobile-submit-gradient /* Aici se aplica stilul corect */
-
+                mobile-submit-gradient
                 w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
                 shadow-[6px_6px_12px_#bec3c9]
                 transition-all flex justify-center items-center gap-2
-
                 md:active:scale-[0.95]
                 md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
-
                 ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
               `}
             >
@@ -370,24 +416,13 @@ useEffect(() => {
         }
 
         @media (max-width: 767px) {
-          
-          /* --- BUTONUL DE SUBMIT (Reparat) --- */
           .mobile-submit-gradient {
-            /* 1. Gradientul CORECT (Blue-700 -> Blue-600 -> Blue-700) */
             background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%) !important;
-            
-            /* 2. IMPORTANT: Marimea 200% pentru ca animatia sa mearga */
             background-size: 200% auto !important;
-            
-            /* 3. IMPORTANT: Transparenta pentru a nu se vedea bg-blue-600 de sub */
             background-color: transparent !important;
-            
             color: white !important;
             border: none !important;
-            
-            /* 4. Umbra identica cu celelalte butoane */
             box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
-            
             transition: background-position 0.5s ease !important;
             transform: none !important;
             -webkit-tap-highlight-color: transparent;
@@ -398,15 +433,13 @@ useEffect(() => {
             transform: none !important;
           }
 
-          /* Cand se trimite (disabled), il facem gri */
           .mobile-submit-gradient:disabled {
-             background: #94a3b8 !important; /* slate-400 */
+             background: #94a3b8 !important;
              background-image: none !important;
              cursor: not-allowed !important;
              box-shadow: none !important;
           }
 
-          /* --- BUTONUL DE CLOSE (X) --- */
           .mobile-close-btn {
             transform: none !important;
             -webkit-tap-highlight-color: transparent;
