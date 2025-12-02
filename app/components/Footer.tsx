@@ -20,12 +20,14 @@ export default function Footer() {
     setTimeout(() => {
       setIsBtnClicked(false);
       setIsModalOpen(true);
+      localStorage.setItem('modalOpen', 'true');
       setIsProcessing(false);
     }, 150);
   };
 
   const handleClose = () => {
     setIsModalOpen(false);
+    localStorage.removeItem('modalOpen');
     (document.activeElement as HTMLElement)?.blur();
   };
 

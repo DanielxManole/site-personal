@@ -4,6 +4,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
+// 1. MUTĂM DEFINIȚIA AICI (În afara componentei)
+// Astfel, nu se mai recreează la fiecare render și nu mai cauzează erori.
+const menuItems = [
+  { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
+  { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
+  { id: "tehnologii", label: "COMPETENȚE", sub: "Stack Tehnic" },
+  { id: "contact", label: "CONTACT", sub: "Hai să vorbim" },
+];
+
 function AnimatedLink({
   href,
   children,
@@ -43,79 +52,106 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  const menuItems = [
-    { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
-    { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
-    { id: "tehnologii", label: "COMPETENȚE", sub: "Stack Tehnic" },
-    { id: "contact", label: "CONTACT", sub: "Hai să vorbim" },
-  ];
+  // (menuItems nu mai este aici)
 
   const touchStartRef = useRef(0);
 
+  // 1. Scroll Lock Effect
   useEffect(() => {
-  if (isMobileMenuOpen) {
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100%";
-    document.documentElement.style.overflow = "hidden";
-  } else {
-    document.body.style.overflow = "";
-    document.body.style.height = "";
-    document.documentElement.style.overflow = "";
-  }
-}, [isMobileMenuOpen]);
+    if (isMobileMenuOpen) {
+      const scrollY = window.scrollY;
 
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
+      window.scrollTo({
+        top: parseInt(scrollY || "0") * -1,
+        behavior: "instant",
+      });
+    }
+  }, [isMobileMenuOpen]);
+
+  // 2. Swipe Gestures Effect
   useEffect(() => {
-  const minSwipeDistance = 70;
-  const marginThreshold = 50;
-  const touchStartRef = { current: 0 };
-  const touchYRef = { current: 0 };
+    const minSwipeDistance = 70;
+    const marginThreshold = 50;
+    const touchStartRef = { current: 0 };
+    const touchYRef = { current: 0 };
 
-  const handleTouchStart = (e: TouchEvent) => {
-    touchStartRef.current = e.touches[0].clientX;
-    touchYRef.current = e.touches[0].clientY;
-  };
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartRef.current = e.touches[0].clientX;
+      touchYRef.current = e.touches[0].clientY;
+    };
 
-  const handleTouchMove = (e: TouchEvent) => {
-    const deltaX = e.touches[0].clientX - touchStartRef.current;
-    const deltaY = e.touches[0].clientY - touchYRef.current;
+    const handleTouchMove = (e: TouchEvent) => {
+      const deltaX = e.touches[0].clientX - touchStartRef.current;
+      const deltaY = e.touches[0].clientY - touchYRef.current;
 
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-      e.preventDefault();
-    }
-  };
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        e.preventDefault();
+      }
+    };
 
-  const handleTouchEnd = (e: TouchEvent) => {
-    const endX = e.changedTouches[0].clientX;
-    const swipeDistance = endX - touchStartRef.current;
+    const handleTouchEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0].clientX;
+      const swipeDistance = endX - touchStartRef.current;
 
-    if (swipeDistance < -minSwipeDistance && !isMobileMenuOpen && touchStartRef.current > window.innerWidth - marginThreshold) {
-      setIsMobileMenuOpen(true);
-    }
+      if (
+        swipeDistance < -minSwipeDistance &&
+        !isMobileMenuOpen &&
+        touchStartRef.current > window.innerWidth - marginThreshold
+      ) {
+        setIsMobileMenuOpen(true);
+      }
 
-    if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-    }
-  };
+      if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
 
-  document.addEventListener("touchstart", handleTouchStart, { passive: false });
-  document.addEventListener("touchmove", handleTouchMove, { passive: false });
-  document.addEventListener("touchend", handleTouchEnd, { passive: false });
+    document.addEventListener("touchstart", handleTouchStart, { passive: false });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd, { passive: false });
 
-  return () => {
-    document.removeEventListener("touchstart", handleTouchStart);
-    document.removeEventListener("touchmove", handleTouchMove);
-    document.removeEventListener("touchend", handleTouchEnd);
-  };
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
   }, [isMobileMenuOpen]);
 
 
+  const [hideHamburger, setHideHamburger] = useState(false);
   useEffect(() => {
+    const checkModal = () => {
+      setHideHamburger(localStorage.getItem('modalOpen') === 'true');
+    };
+    
+    checkModal();
+    window.addEventListener('storage', checkModal);
+    const interval = setInterval(checkModal, 100);
+    
+    return () => {
+      window.removeEventListener('storage', checkModal);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // 3. Scroll Spy Effect (MODIFICAT FINAL)
+  useEffect(() => {
+    if (isMobileMenuOpen) return;
+
     let ticking = false;
 
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-
           if (progressBarRef.current) {
             const totalScroll =
               window.scrollY || document.documentElement.scrollTop;
@@ -132,7 +168,8 @@ export default function Navbar() {
               progressBarRef.current.style.width = `${safePercent}%`;
             }
           }
-
+        
+          // Aici folosim variabila externă menuItems, care e stabilă
           for (const item of menuItems) {
             const element = document.getElementById(item.id);
             if (element) {
@@ -156,23 +193,26 @@ export default function Navbar() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [menuItems]);
+    
+    // 2. DEPENDENCY CLEAN: Doar isMobileMenuOpen. 
+    // menuItems nu mai trebuie pus aici pentru că e constantă externă.
+  }, [isMobileMenuOpen]);
 
   const pathname = usePathname();
-  const isErrorPage = pathname !== '/';
-  const logoHref = isErrorPage ? '/' : '#top';
+  const isErrorPage = pathname !== "/";
+  const logoHref = isErrorPage ? "/" : "#top";
 
   const scrollToTop = () => {
     setIsMobileMenuOpen(false);
     if (isErrorPage) {
-
     } else {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-20">
+       {/* RESTUL CODULUI ESTE IDENTIC, DOAR ASIGURĂ-TE CĂ HTML-UL DE MAI JOS E COMPLET */}
       <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
@@ -196,11 +236,18 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">ManoleDaniel.cad</span>
+                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">
+                    ManoleDaniel.cad
+                  </span>
                   <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-4 h-4 text-blue-500"
+                    >
                       <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
-                      <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z"/>
+                      <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z" />
                     </svg>
                     Part1
                   </span>
@@ -235,8 +282,10 @@ export default function Navbar() {
             <div className="md:hidden flex items-center z-[60]">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300"
-              >
+                className={`group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300 ${
+      hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
+    }`}
+  >
                 <span
                   className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
                     isMobileMenuOpen ? "rotate-45 translate-y-[9px]" : ""
@@ -269,7 +318,9 @@ export default function Navbar() {
 
       <div
         className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
-          isMobileMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+          isMobileMenuOpen
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0"
         }`}
       >
         <div
@@ -281,8 +332,8 @@ export default function Navbar() {
           }}
         ></div>
 
-        <div className="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-slate-400 opacity-50"></div>
-        <div className="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-slate-400 opacity-50"></div>
+        <div className="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-slate-400 opacity-50 select-none"></div>
+        <div className="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-slate-400 opacity-50 select-none"></div>
 
         <div className="w-full max-w-sm px-6 space-y-8 relative z-50">
           {menuItems.map((item, index) => (
@@ -291,16 +342,26 @@ export default function Navbar() {
               href={isErrorPage ? `/#${item.id}` : `#${item.id}`}
               onClick={() => setIsMobileMenuOpen(false)}
               className={`group block relative w-full transition-all duration-500 ease-out transform ${
-                isMobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                isMobileMenuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-10 opacity-0"
               }`}
             >
               <div className="flex items-baseline justify-between group-active:border-blue-500 transition-colors">
-                <span className="font-mono text-sm text-slate-400 font-bold group-hover:text-blue-500 transition-colors">
+                <span
+                  className={`font-mono text-sm font-bold transition-colors ${
+                    activeSection === item.id
+                      ? "text-blue-500"
+                      : "text-slate-400 group-hover:text-blue-500"
+                  }`}
+                >
                   0{index + 1}
                 </span>
                 <span
                   className={`font-sans text-4xl font-black tracking-tighter transition-colors ${
-                    activeSection === item.id ? "text-blue-600" : "text-slate-800 group-hover:text-blue-600"
+                    activeSection === item.id
+                      ? "text-blue-600"
+                      : "text-slate-800 group-hover:text-blue-600"
                   }`}
                 >
                   {item.label}
@@ -313,11 +374,15 @@ export default function Navbar() {
               </div>
             </AnimatedLink>
           ))}
-          
         </div>
         <div className="absolute bottom-20 text-center font-bold">
-              <p className="font-mono text-xs text-slate-600 tracking-widest">LOC_COORDS: <span className="text-blue-500 font-bold font-bold">44.3678° N, 26.1440° E</span></p>
-          </div>
+          <p className="font-mono text-xs text-slate-600 tracking-widest select-none">
+            LOC_COORDS:{" "}
+            <span className="text-blue-500 font-bold font-bold select-none">
+              44.3678° N, 26.1440° E
+            </span>
+          </p>
+        </div>
       </div>
 
       <style jsx>{`

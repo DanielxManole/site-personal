@@ -36,16 +36,27 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       onClose();
     }
   }, [pathname]); // Dependința pathname declanșează efectul la schimbarea rutei
-
+  
   // B. Închide modalul dacă se schimbă hash-ul (#contact -> #home)
-  useEffect(() => {
-    const handleHashChange = () => {
-      if (isOpen) onClose();
-    };
+useEffect(() => {
+  const handleHashChange = () => {
+    if (isOpen) {
+      // FORȚEAZĂ închiderea INSTANT pe mobile
+      const isMobile = window.innerWidth <= 767;
+      if (isMobile) {
+        // Restaurează body imediat
+        const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+      }
+      onClose();
+    }
+  };
 
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [isOpen, onClose]);
+  window.addEventListener("hashchange", handleHashChange);
+  return () => window.removeEventListener("hashchange", handleHashChange);
+}, [isOpen, onClose]);
 
   // ---------------------------------------------------------
   // END LOGICA NOUĂ
@@ -84,7 +95,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (isOpen) {
       setShowModal(true);
       animationFrame = requestAnimationFrame(() => setIsMounted(true));
-      document.body.classList.add("modal-open-neumorphism");
     } else {
       setIsMounted(false);
       domTimer = setTimeout(() => {
@@ -94,8 +104,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setFormData({ numele: "", email: "", mesajul: "" });
         setCountdown(3);
       }, 300);
-
-      document.body.classList.remove("modal-open-neumorphism");
     }
 
     return () => {
@@ -107,25 +115,28 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   
   // Prevent Scroll on Mobile logic existent...
   useEffect(() => {
-    const isMobile = window.innerWidth <= 767;
-    if (isOpen && isMobile) {
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.overflowY = 'scroll';
+  const isMobile = window.innerWidth <= 767;
+  if (isOpen && isMobile) {
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    
+    return () => {
+      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
       
-      return () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.overflowY = '';
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      
+      // Scroll INSTANT
+      window.scrollTo({
+        top: savedScroll,
+        behavior: 'instant'
+      });
+    };
+  }
+}, [isOpen]);
 
   // ESC close
   useEffect(() => {
