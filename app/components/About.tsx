@@ -1,37 +1,64 @@
 "use client";
 
 import React from 'react';
-import { useScrollReveal } from '../hooks/useScrollReveal';
 import Image from 'next/image';
 import GradientButton from './GradientButton';
+import { motion, Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 30 
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.6, 
+      ease: "easeOut"
+    }
+  }
+};
 
 export default function About() {
-  const { ref, isVisible } = useScrollReveal(0.4); 
 
   return (
     <section 
       id="despre" 
-      ref={ref} 
       className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative scroll-mt-20"
     >
       
-      <div className={`
-        transition-all duration-1000 md:duration-500 ease-out transform will-change-transform
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-      `}>
+      <motion.div 
+        className="w-full"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
 
-          <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
+          <motion.div variants={itemVariants} className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
             <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter transform-gpu">
               01_DESPRE
             </h2>
             <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none transform-gpu">
               // OPERATOR_PROFILE
             </span>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            <div className="lg:col-span-4 flex flex-col gap-6">
+            <motion.div variants={itemVariants} className="lg:col-span-4 flex flex-col gap-6">
               <div className="
                 bg-[#e0e5ec] p-6 rounded-2xl border border-white/50 relative overflow-hidden group 
                 shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]
@@ -39,9 +66,7 @@ export default function About() {
               ">
                 
                 <div className="aspect-square rounded-xl relative overflow-hidden mb-4 select-none">
-                  
                   <div className="absolute inset-0 bg-white z-10"></div> 
-                  
                   <Image
                     src="/images/manole-daniel-profile.jpg"
                     alt="Manole Daniel Profile Picture"
@@ -50,7 +75,6 @@ export default function About() {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover rounded-xl border-2 border-slate-300 z-20" 
                   />
-                  
                   <div className="absolute inset-0 bg-blue-500/10 animate-subtle-pulse z-30"></div> 
                 </div>
 
@@ -70,11 +94,11 @@ export default function About() {
                       target="_blank"      
                       className="w-full sm:!w-full" 
                     >
-                       <span className="flex items-center justify-center gap-2">
+                        <span className="flex items-center justify-center gap-2">
                           <span className="text-lg">📄</span> 
                           
                           <span className="text-lg font-bold tracking-wide">VEZI CV</span>
-                       </span>
+                        </span>
                     </GradientButton>
                   </div>
 
@@ -91,9 +115,9 @@ export default function About() {
                   <p className="text-sm font-bold text-slate-700">Programare & CAD</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="lg:col-span-8 bg-[#e0e5ec] p-8 md:p-10 rounded-3xl relative shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] z-20 transform-gpu">
+            <motion.div variants={itemVariants} className="lg:col-span-8 bg-[#e0e5ec] p-8 md:p-10 rounded-3xl relative shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] z-20 transform-gpu">
               <div className="absolute top-4 left-4 w-2 h-2 border-t-2 border-l-2 border-slate-400"></div>
               <div className="absolute top-4 right-4 w-2 h-2 border-t-2 border-r-2 border-slate-400"></div>
               <div className="absolute bottom-4 left-4 w-2 h-2 border-b-2 border-l-2 border-slate-400"></div>
@@ -178,10 +202,10 @@ export default function About() {
                 </div>
 
               </div>
-            </div>
+            </motion.div>
           </div>
           
-      </div> 
+      </motion.div> 
     </section>
   );
 }

@@ -2,7 +2,33 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useScrollReveal } from '../hooks/useScrollReveal';
+
+import { motion, Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+    }
+  }
+};
+
+const cardVariants: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 50
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.5, 
+      ease: "easeOut" 
+    }
+  }
+};
 
 const projectsData = [
   {
@@ -229,7 +255,7 @@ const ProjectCard = ({ project }: { project: any }) => {
 
         {showImage ? (
           <div 
-            className="mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none touch-pan-y transform-gpu"
+            className="prevent-nav-swipe mb-6 w-full aspect-video relative rounded-xl overflow-hidden border-2 border-white shadow-inner group/slider bg-slate-200 select-none touch-pan-y transform-gpu"
             onTouchStart={hasSlideshow ? onTouchStart : undefined}
             onTouchMove={hasSlideshow ? onTouchMove : undefined}
             onTouchEnd={hasSlideshow ? onTouchEnd : undefined}
@@ -253,7 +279,7 @@ const ProjectCard = ({ project }: { project: any }) => {
                       className="object-cover pointer-events-none"
                       priority={true}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      quality={85}
+                      quality={100}
                     />
                   </div>
                 ))
@@ -313,36 +339,38 @@ const ProjectCard = ({ project }: { project: any }) => {
 };
 
 export default function Projects() {
-  const { ref, isVisible } = useScrollReveal(0.4); 
-
+  
   return (
     <section 
       id="proiecte" 
-      ref={ref}
       className="min-h-screen flex flex-col justify-center py-24 px-4 max-w-7xl mx-auto relative scroll-mt-20"
     >
       
-      <div className={`
-        transition-all duration-1000 md:duration-500 ease-out transform will-change-transform
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-      `}>
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+      >
 
-        <div className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
+        <motion.div variants={cardVariants} className="mb-16 flex flex-col md:flex-row md:items-end gap-4 border-b-2 border-slate-800 pb-4">
           <h2 className="text-4xl md:text-5xl font-mono font-bold text-slate-800 tracking-tighter">
             02_PROIECTE
           </h2>
           <span className="font-mono text-blue-600 mb-2 text-sm font-bold select-none">
             // SYSTEM_MODULES
           </span>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {projectsData.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <motion.div key={project.id} variants={cardVariants} className="h-full">
+               <ProjectCard project={project} />
+            </motion.div>
           ))}
         </div>
 
-      </div>
+      </motion.div>
     </section>
   );
 }

@@ -71,13 +71,23 @@ export default function Navbar() {
 
     let touchStartX = 0;
     let touchStartY = 0;
+    let isSwipeIgnored = false;
 
     const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.prevent-nav-swipe')) {
+        isSwipeIgnored = true;
+        return; 
+      }
+
+      isSwipeIgnored = false;
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      if (isSwipeIgnored) return;
+
       const deltaX = e.touches[0].clientX - touchStartX;
       const deltaY = e.touches[0].clientY - touchStartY;
 
@@ -89,6 +99,8 @@ export default function Navbar() {
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
+      if (isSwipeIgnored) return
+      
       const endX = e.changedTouches[0].clientX;
       const swipeDistance = endX - touchStartX;
 
