@@ -3,7 +3,7 @@
 import React from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import Image from 'next/image';
-import GradientButton from './GradientButton'; // <--- IMPORTAM COMPONENTA
+import GradientButton from './GradientButton';
 
 export default function About() {
   const { ref, isVisible } = useScrollReveal(0.4); 
@@ -63,7 +63,6 @@ export default function About() {
                     <span className="text-xs font-mono text-slate-500 select-none">AVAILABLE FOR HIRE</span>
                   </div>
 
-                  {/* --- BUTON CV (GradientButton) --- */}
                   <div className="relative w-full select-none">
                     <GradientButton 
                       variant="blue" 
@@ -71,11 +70,9 @@ export default function About() {
                       target="_blank"      
                       className="w-full sm:!w-full" 
                     >
-                       {/* Am adăugat un container flex pentru aliniere */}
                        <span className="flex items-center justify-center gap-2">
                           <span className="text-lg">📄</span> 
                           
-                          {/* AICI ESTE MODIFICAREA: text-sm (mic) sau text-xs (foarte mic) */}
                           <span className="text-lg font-bold tracking-wide">VEZI CV</span>
                        </span>
                     </GradientButton>

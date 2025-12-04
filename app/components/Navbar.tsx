@@ -4,8 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-// 1. MUTĂM DEFINIȚIA AICI (În afara componentei)
-// Astfel, nu se mai recreează la fiecare render și nu mai cauzează erori.
 const menuItems = [
   { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
   { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
@@ -52,41 +50,25 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // (menuItems nu mai este aici)
-
   const touchStartRef = useRef(0);
 
-  // 1. Scroll Lock Effect
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Când meniul e deschis, doar ascundem bara de scroll a body-ului
-      // Asta previne scroll-ul în spate fără să schimbe poziția paginii (fără position: fixed)
       document.body.style.overflow = "hidden";
     } else {
-      // Când meniul se închide, revenim la normal
       document.body.style.overflow = "";
     }
 
-    // Cleanup: ne asigurăm că dacă se demontează componenta, scroll-ul revine
     return () => {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
-  // 2. Swipe Gestures Effect
-// 2. Swipe Gestures Effect
   useEffect(() => {
     const minSwipeDistance = 70; 
     
-    // AICI E SCHIMBAREA:
-    // 50 = doar marginea (foarte strict)
-    // window.innerWidth / 2 = jumătate de ecran (mai relaxat)
-    // 0 = tot ecranul (ce ai cerut tu, dar riscant)
-    
-    // Recomandarea mea: 
-    const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40); // Activ pe ultimii 40% din dreapta
+    const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40);
 
-    // Variabile locale pentru a nu depinde de re-render
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -99,8 +81,6 @@ export default function Navbar() {
       const deltaX = e.touches[0].clientX - touchStartX;
       const deltaY = e.touches[0].clientY - touchStartY;
 
-      // Dacă mișcarea e preponderent orizontală, prevenim scroll-ul paginii
-      // DOAR dacă suntem în zona de trigger sau meniul e deja deschis
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
         if (isMobileMenuOpen || touchStartX > triggerZoneStart) {
              e.preventDefault();
@@ -112,16 +92,14 @@ export default function Navbar() {
       const endX = e.changedTouches[0].clientX;
       const swipeDistance = endX - touchStartX;
 
-      // DESCHIDERE: Swipe Stânga (valoare negativă)
       if (
         swipeDistance < -minSwipeDistance && 
         !isMobileMenuOpen &&
-        touchStartX > triggerZoneStart // <--- AICI SE VERIFICĂ ZONA DE START
+        touchStartX > triggerZoneStart
       ) {
         setIsMobileMenuOpen(true);
       }
 
-      // ÎNCHIDERE: Swipe Dreapta (valoare pozitivă)
       if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
@@ -155,7 +133,6 @@ export default function Navbar() {
     };
   }, []);
 
-  // 3. Scroll Spy Effect (MODIFICAT FINAL)
   useEffect(() => {
     if (isMobileMenuOpen) return;
 
@@ -181,7 +158,6 @@ export default function Navbar() {
             }
           }
         
-          // Aici folosim variabila externă menuItems, care e stabilă
           for (const item of menuItems) {
             const element = document.getElementById(item.id);
             if (element) {
@@ -206,8 +182,6 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
     
-    // 2. DEPENDENCY CLEAN: Doar isMobileMenuOpen. 
-    // menuItems nu mai trebuie pus aici pentru că e constantă externă.
   }, [isMobileMenuOpen]);
 
   const pathname = usePathname();
@@ -224,7 +198,6 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-20">
-       {/* RESTUL CODULUI ESTE IDENTIC, DOAR ASIGURĂ-TE CĂ HTML-UL DE MAI JOS E COMPLET */}
       <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
@@ -445,5 +418,4 @@ export default function Navbar() {
       `}</style>
     </nav>
   );
-
 }

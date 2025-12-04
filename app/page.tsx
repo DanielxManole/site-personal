@@ -82,18 +82,11 @@ export default function Home() {
             </span>
           </p>
 
-          {/* -------------------------------- */}
-          {/* NEW BUTTONS                      */}
-          {/* -------------------------------- */}
-
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none w-full">
 
-            {/* ---------------- PROIECTE ---------------- */}
             <GradientButton
               href="#proiecte"
               variant="gray"
-              /* Adaugam !w-full pentru a forta latimea */
-              /* Adaugam text-blue-600 explicit */
               className="w-full !w-full sm:!w-full flex-1 group text-blue-600 md:transition-all md:duration-300 md:ease-out md:hover:scale-100 md:active:scale-100"
             >
               <span className="flex items-center justify-center gap-2 w-full text-xl">
@@ -105,7 +98,6 @@ export default function Home() {
               </span>
             </GradientButton>
 
-            {/* ---------------- CONTACT ---------------- */}
             <GradientButton
               href="#contact"
               variant="blue"

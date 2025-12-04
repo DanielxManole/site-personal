@@ -12,7 +12,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const form = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<"IDLE" | "SENDING" | "SUCCESS" | "ERROR">("IDLE");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [formData, setFormData] = useState({ numele: "", email: "", mesajul: "" });
+  const [formData, setFormData] = useState({ nume: "", email: "", mesaj: "" });
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
@@ -81,7 +81,7 @@ useEffect(() => {
         setShowModal(false);
         setStatus("IDLE");
         setErrors({});
-        setFormData({ numele: "", email: "", mesajul: "" });
+        setFormData({ nume: "", email: "", mesaj: "" });
         setCountdown(3);
       }, 300);
     }
@@ -147,8 +147,8 @@ useEffect(() => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;
-    if (name === "numele") finalValue = value.replace(/\b\w/g, (c) => c.toUpperCase());
-    if (name === "mesajul") finalValue = value.charAt(0).toUpperCase() + value.slice(1);
+    if (name === "nume") finalValue = value.replace(/\b\w/g, (c) => c.toUpperCase());
+    if (name === "mesaj") finalValue = value.charAt(0).toUpperCase() + value.slice(1);
 
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
 
@@ -162,18 +162,18 @@ useEffect(() => {
   };
 
   const getFieldError = (name: string, value: string) => {
-    if (name === "numele" && (!value || value.trim().length < 2)) return "MINIM 2 CARACTERE";
+    if (name === "nume" && (!value || value.trim().length < 2)) return "MINIM 2 CARACTERE";
     if (name === "email") {
       const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$/;
       if (!value || !regex.test(value)) return "FORMAT INVALID";
     }
-    if (name === "mesajul" && (!value || value.trim().length < 10)) return "MINIM 10 CARACTERE";
+    if (name === "mesaj" && (!value || value.trim().length < 10)) return "MINIM 10 CARACTERE";
     return "";
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    ["numele", "email", "mesajul"].forEach((field) => {
+    ["nume", "email", "mesaj"].forEach((field) => {
       const error = getFieldError(field, formData[field as keyof typeof formData]);
       if (error) newErrors[field] = error;
     });
@@ -200,28 +200,41 @@ useEffect(() => {
   };
 
   const sendEmail = async (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (!validateForm()) return;
 
     setStatus("SENDING");
-    if (!form.current) return;
 
-    const formDataObj = new FormData(form.current);
-    formDataObj.append("_subject", `🚀 Mesaj nou de la 👤 ${formData.numele}`);
-    formDataObj.append("_captcha", "false");
-    formDataObj.append("_template", "box");
-
-    const myEmail = "manoledaniel2004@gmail.com";
+    const dataToSend = {
+      access_key: "57970ddb-901c-4dca-aff4-b5ebceaf43ea",
+      name: formData.nume,
+      email: formData.email,
+      message: formData.mesaj,
+      subject: `Am primit un mesaj nou de la 👤 ${formData.nume}`,
+      from_name: "🚀 Mesaj Portofoliu",
+      botcheck: false
+    };
 
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${myEmail}`, {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        body: formDataObj,
-        headers: { Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
       });
-      if (response.ok) setStatus("SUCCESS");
-      else setStatus("ERROR");
-    } catch {
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus("SUCCESS");
+      } else {
+        console.error("Web3Forms Error:", result);
+        setStatus("ERROR");
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
       setStatus("ERROR");
     }
   };
@@ -311,7 +324,7 @@ useEffect(() => {
           </div>
         ) : (
           <form ref={form} onSubmit={sendEmail} className="space-y-5" noValidate>
-            {["numele", "email", "mesajul"].map((field) => (
+            {["nume", "email", "mesaj"].map((field) => (
               <div key={field} className="space-y-1">
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none">
@@ -321,7 +334,7 @@ useEffect(() => {
                 </div>
 
                 <div className="relative">
-                  {field !== "mesajul" ? (
+                  {field !== "mesaj" ? (
                     <input
                       type={field === "email" ? "email" : "text"}
                       name={field}
@@ -334,10 +347,10 @@ useEffect(() => {
                     />
                   ) : (
                     <textarea
-                      name="mesajul"
+                      name="mesaj"
                       rows={4}
-                      value={formData.mesajul}
-                      className={inputClass(!!errors.mesajul)}
+                      value={formData.mesaj}
+                      className={inputClass(!!errors.mesaj)}
                       placeholder="Salut! Te contactez în legătură cu..."
                       onChange={handleInputChange}
                       onBlur={handleBlur}
