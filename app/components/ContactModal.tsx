@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-// 1. IMPORTĂM usePathname
 import { usePathname } from "next/navigation";
 
 interface ContactModalProps {
@@ -23,28 +22,18 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
-  // 2. FOLOSIM HOOK-UL PENTRU A DETECTA SCHIMBAREA PAGINII
   const pathname = usePathname();
-
-  // ---------------------------------------------------------
-  // 3. LOGICA NOUĂ: AUTO-CLOSE LA NAVIGARE
-  // ---------------------------------------------------------
-  
-  // A. Închide modalul dacă se schimbă pagina (/despre -> /proiecte)
   useEffect(() => {
     if (isOpen) {
       onClose();
     }
-  }, [pathname]); // Dependința pathname declanșează efectul la schimbarea rutei
+  }, [pathname]);
   
-  // B. Închide modalul dacă se schimbă hash-ul (#contact -> #home)
 useEffect(() => {
   const handleHashChange = () => {
     if (isOpen) {
-      // FORȚEAZĂ închiderea INSTANT pe mobile
       const isMobile = window.innerWidth <= 767;
       if (isMobile) {
-        // Restaurează body imediat
         const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
         document.body.style.position = '';
         document.body.style.top = '';
@@ -58,28 +47,20 @@ useEffect(() => {
   return () => window.removeEventListener("hashchange", handleHashChange);
 }, [isOpen, onClose]);
 
-  // ---------------------------------------------------------
-  // END LOGICA NOUĂ
-  // ---------------------------------------------------------
-
   useEffect(() => {
     if (!isOpen) return;
 
     const handleGlobalLinkClick = (e: MouseEvent) => {
-      // Verificăm dacă elementul clickuit este un link sau e în interiorul unui link
       const target = (e.target as HTMLElement).closest("a");
       
       if (target) {
         const href = target.getAttribute("href");
-        // Dacă userul dă click pe ORICE link intern (ancoră), închidem modalul
         if (href && (href.startsWith("#") || href.includes("/#"))) {
-           // Un mic delay pentru a permite browserului să proceseze click-ul înainte de unmount
            setTimeout(() => onClose(), 10);
         }
       }
     };
 
-    // 'true' activează faza de captură (prinde click-ul înainte să fie blocat de alte scripturi)
     window.addEventListener("click", handleGlobalLinkClick, true);
 
     return () => {
@@ -87,7 +68,6 @@ useEffect(() => {
     };
   }, [isOpen, onClose]);
 
-  // OPEN / CLOSE modal logic existent...
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
     let animationFrame: number;
@@ -113,7 +93,6 @@ useEffect(() => {
     };
   }, [isOpen]);
   
-  // Prevent Scroll on Mobile logic existent...
   useEffect(() => {
   const isMobile = window.innerWidth <= 767;
   if (isOpen && isMobile) {
@@ -129,7 +108,6 @@ useEffect(() => {
       document.body.style.top = '';
       document.body.style.width = '';
       
-      // Scroll INSTANT
       window.scrollTo({
         top: savedScroll,
         behavior: 'instant'
@@ -138,7 +116,7 @@ useEffect(() => {
   }
 }, [isOpen]);
 
-  // ESC close
+  // ESC
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -147,14 +125,14 @@ useEffect(() => {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // Pulse error
+  // Pulse Error
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // SUCCESS countdown
+  // Countdown
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -166,7 +144,6 @@ useEffect(() => {
 
   if (!showModal) return null;
 
-  // ... Restul codului (handleInputChange, validateForm, render, style) rămâne neschimbat
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;

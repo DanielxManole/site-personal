@@ -59,57 +59,69 @@ export default function Navbar() {
   // 1. Scroll Lock Effect
   useEffect(() => {
     if (isMobileMenuOpen) {
-      const scrollY = window.scrollY;
-
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
+      // Când meniul e deschis, doar ascundem bara de scroll a body-ului
+      // Asta previne scroll-ul în spate fără să schimbe poziția paginii (fără position: fixed)
+      document.body.style.overflow = "hidden";
     } else {
-      const scrollY = document.body.style.top;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.width = "";
-
-      window.scrollTo({
-        top: parseInt(scrollY || "0") * -1,
-        behavior: "instant",
-      });
+      // Când meniul se închide, revenim la normal
+      document.body.style.overflow = "";
     }
+
+    // Cleanup: ne asigurăm că dacă se demontează componenta, scroll-ul revine
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMobileMenuOpen]);
 
   // 2. Swipe Gestures Effect
+// 2. Swipe Gestures Effect
   useEffect(() => {
-    const minSwipeDistance = 70;
-    const marginThreshold = 50;
-    const touchStartRef = { current: 0 };
-    const touchYRef = { current: 0 };
+    const minSwipeDistance = 70; 
+    
+    // AICI E SCHIMBAREA:
+    // 50 = doar marginea (foarte strict)
+    // window.innerWidth / 2 = jumătate de ecran (mai relaxat)
+    // 0 = tot ecranul (ce ai cerut tu, dar riscant)
+    
+    // Recomandarea mea: 
+    const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40); // Activ pe ultimii 40% din dreapta
+
+    // Variabile locale pentru a nu depinde de re-render
+    let touchStartX = 0;
+    let touchStartY = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartRef.current = e.touches[0].clientX;
-      touchYRef.current = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      const deltaX = e.touches[0].clientX - touchStartRef.current;
-      const deltaY = e.touches[0].clientY - touchYRef.current;
+      const deltaX = e.touches[0].clientX - touchStartX;
+      const deltaY = e.touches[0].clientY - touchStartY;
 
+      // Dacă mișcarea e preponderent orizontală, prevenim scroll-ul paginii
+      // DOAR dacă suntem în zona de trigger sau meniul e deja deschis
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-        e.preventDefault();
+        if (isMobileMenuOpen || touchStartX > triggerZoneStart) {
+             e.preventDefault();
+        }
       }
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       const endX = e.changedTouches[0].clientX;
-      const swipeDistance = endX - touchStartRef.current;
+      const swipeDistance = endX - touchStartX;
 
+      // DESCHIDERE: Swipe Stânga (valoare negativă)
       if (
-        swipeDistance < -minSwipeDistance &&
+        swipeDistance < -minSwipeDistance && 
         !isMobileMenuOpen &&
-        touchStartRef.current > window.innerWidth - marginThreshold
+        touchStartX > triggerZoneStart // <--- AICI SE VERIFICĂ ZONA DE START
       ) {
         setIsMobileMenuOpen(true);
       }
 
+      // ÎNCHIDERE: Swipe Dreapta (valoare pozitivă)
       if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }

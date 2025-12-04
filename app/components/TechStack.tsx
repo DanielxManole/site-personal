@@ -1,29 +1,10 @@
 "use client";
 
-import React, { useState } from 'react'; 
+import React from 'react'; 
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 export default function TechStack() {
   const { ref, isVisible } = useScrollReveal(0.4);
-  
-  const [activeSkills, setActiveSkills] = useState<string[]>([]);
-
-  const handleSkillClick = (skillName: string) => {
-    if (typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches) {
-      return; 
-    }
-
-    // Previne double-tap zoom pe iOS și click multiplu
-    if (activeSkills.includes(skillName)) return;
-
-    setActiveSkills((prev) => [...prev, skillName]);
-
-    setTimeout(() => {
-      setActiveSkills((prev) => prev.filter((item) => item !== skillName));
-    }, 2000);
-  };
-
-  const isActive = (skillName: string) => activeSkills.includes(skillName);
 
   return (
     <section 
@@ -80,19 +61,22 @@ export default function TechStack() {
                   {["Python", "Tkinter", "C / C++", "PyTorch", "OpenCV"].map(item => (
                     <span 
                       key={item} 
-                      onClick={() => handleSkillClick(item)} 
-                      className={`
+                      className="
                         touch-manipulation
-                        px-3 py-1 text-sm font-mono font-bold border cursor-pointer active:scale-[0.95] 
-                        transition-all ease-out delay-50
+                        px-3 py-1 text-sm font-mono font-bold border 
+                        transition-all duration-200 ease-out
+                        
+                        text-slate-700 bg-transparent border-slate-600 
+                        
+                        /* DESKTOP HOVER */
+                        hover:bg-slate-800 hover:border-slate-800 hover:text-white
+                        
+                        /* MOBILE ACTIVE */
+                        active:bg-slate-800 active:border-slate-800 active:text-white active:scale-[0.95]
 
-                        ${isActive(item) ? 'duration-50' : 'duration-300'} 
-
-                        ${isActive(item)
-                            ? 'bg-slate-800 border-slate-800 text-white' 
-                            : 'text-slate-700 bg-transparent border-slate-600 hover:bg-slate-800 hover:border-slate-800 hover:text-white'
-                        }
-                      `}
+                        /* FIX DESKTOP CLICK */
+                            md:active:scale-100
+                      "
                     >
                       {item}
                     </span>
@@ -108,19 +92,22 @@ export default function TechStack() {
                   {["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion", "Git / Github", "Vercel"].map(item => (
                     <span 
                       key={item} 
-                      onClick={() => handleSkillClick(item)}
-                      className={`
+                      className="
                         touch-manipulation
-                        px-3 py-1 text-sm font-mono font-bold border cursor-pointer active:scale-[0.95] 
-                        transition-all ease-out delay-50
+                        px-3 py-1 text-sm font-mono font-bold border 
+                        transition-all duration-200 ease-out
 
-                        ${isActive(item) ? 'duration-50' : 'duration-300'}
+                        text-slate-700 bg-transparent border-slate-600 
 
-                        ${isActive(item) 
-                            ? 'bg-slate-800 border-slate-800 text-white' 
-                            : 'text-slate-700 bg-transparent border-slate-600 hover:bg-slate-800 hover:border-slate-800 hover:text-white'
-                        }
-                      `}
+                        /* DESKTOP HOVER */
+                        hover:bg-slate-800 hover:border-slate-800 hover:text-white
+                        
+                        /* MOBILE ACTIVE */
+                        active:bg-slate-800 active:border-slate-800 active:text-white active:scale-[0.95]
+
+                        /* FIX DESKTOP CLICK */
+                            md:active:scale-100
+                      "
                     >
                       {item}
                     </span>
@@ -160,19 +147,22 @@ export default function TechStack() {
                   {["CATIA V5", "Fusion 360", "SolidWorks", "AutoCAD"].map(item => (
                     <span 
                         key={item} 
-                        onClick={() => handleSkillClick(item)}
-                        className={`
+                        className="
                             touch-manipulation
-                            px-3 py-1 text-sm font-mono font-bold border cursor-pointer active:scale-[0.95] 
-                            transition-all ease-out delay-50
+                            px-3 py-1 text-sm font-mono font-bold border 
+                            transition-all duration-200 ease-out
+                            
+                            text-slate-700 bg-transparent border-slate-600 
 
-                            ${isActive(item) ? 'duration-50' : 'duration-300'}
-
-                            ${isActive(item) 
-                                ? 'bg-orange-900 border-orange-900 text-white' 
-                                : 'text-slate-700 bg-transparent border-slate-600 hover:bg-orange-900 hover:border-orange-900 hover:text-white'
-                            }
-                        `}
+                            /* DESKTOP HOVER */
+                            hover:bg-orange-900 hover:border-orange-900 hover:text-white
+                            
+                            /* MOBILE ACTIVE */
+                            active:bg-orange-900 active:border-orange-900 active:text-white active:scale-[0.95]
+                            
+                            /* FIX DESKTOP CLICK */
+                            md:active:scale-100
+                        "
                     >
                       {item}
                     </span>
@@ -188,19 +178,22 @@ export default function TechStack() {
                   {["LabVIEW", "C / C++ Embedded", "Programare CNC", "Matlab / Simulink", "Data Acquisition"].map(item => (
                     <span 
                         key={item} 
-                        onClick={() => handleSkillClick(item)}
-                        className={`
+                        className="
                             touch-manipulation
-                            px-3 py-1 text-sm font-mono font-bold border cursor-pointer active:scale-[0.95] 
-                            transition-all ease-out delay-50
+                            px-3 py-1 text-sm font-mono font-bold border 
+                            transition-all duration-200 ease-out
                             
-                            ${isActive(item) ? 'duration-50' : 'duration-300'}
+                            text-slate-700 bg-transparent border-slate-600 
 
-                            ${isActive(item)
-                                ? 'bg-orange-900 border-orange-900 text-white' 
-                                : 'text-slate-700 bg-transparent border-slate-600 hover:bg-orange-900 hover:border-orange-900 hover:text-white'
-                            }
-                        `}
+                            /* DESKTOP HOVER */
+                            hover:bg-orange-900 hover:border-orange-900 hover:text-white
+                            
+                            /* MOBILE ACTIVE */
+                            active:bg-orange-900 active:border-orange-900 active:text-white active:scale-[0.95]
+
+                            /* FIX DESKTOP CLICK */
+                            md:active:scale-100
+                        "
                     >
                       {item}
                     </span>

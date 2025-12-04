@@ -152,12 +152,28 @@ export default function About() {
                   </h3>
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
-                      <p className="text-sm font-bold text-slate-700">Python Certificate <Image src="/images/hackerrank.png" alt="HackerRank Logo" width={0} height={0} sizes="20px" className="inline-block translate-y-[-1px] object-contain ml-1 select-none"/></p>
+                        <p className="text-sm font-bold text-slate-700 flex items-center">Python Certificate
+                          <img
+                            src="/images/hackerrank.png"
+                            alt="HackerRank Logo"
+                            width={20}
+                            height={20}
+                            className="ml-2 translate-y-[-1px] object-contain select-none"
+                          />
+                        </p>
                       <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                     </div>
 
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
-                      <p className="text-sm font-bold text-slate-700">Software Engineer Certificate <Image src="/images/hackerrank.png" alt="HackerRank Logo" width={0} height={0} sizes="20px" className="inline-block translate-y-[-1px] object-contain ml-1 select-none"/></p>
+                        <p className="text-sm font-bold text-slate-700 flex items-center">Software Engineer Certificate
+                          <img
+                            src="/images/hackerrank.png"
+                            alt="HackerRank Logo"
+                            width={20}
+                            height={20}
+                            className="ml-2 translate-y-[-1px] object-contain select-none"
+                          />
+                        </p>
                       <p className="text-[12px] font-mono text-green-800">Emis de HackerRank în Ianuarie{'\u00A0'}2025</p>
                     </div>
 

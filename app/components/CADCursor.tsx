@@ -11,7 +11,6 @@ export default function CADCursor() {
   const [interactionReady, setInteractionReady] = useState(false);
 
   useEffect(() => {
-    // verificăm pointer: fine (mouse/trackpad) + hover: hover
     const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
     setHasMouse(mediaQuery.matches);
     setInteractionReady(true);

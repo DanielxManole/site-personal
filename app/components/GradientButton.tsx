@@ -26,16 +26,13 @@ export default function GradientButton({
   
   const gradientClass = variant === "blue" ? "gradient-btn-blue" : "gradient-btn-gray";
 
-  // --- 1. CONFIGURARE BUTON ---
   const baseStyles = `
     relative flex items-center justify-center gap-2 px-10 py-4 
     rounded-xl font-bold text-lg leading-tight
     overflow-hidden
     
-    /* FIX FINAL: Fara border, fara clip. Doar overflow-hidden si marimea gradientului rezolva tot. */
     border-0
     
-    /* Pastram will-change pentru performanta animatiei */
     will-change-transform
     transition-all duration-300 ease-out
     
@@ -44,17 +41,16 @@ export default function GradientButton({
     ${gradientClass}
   `;
 
-  // --- 2. INTERACTIUNE ---
   const desktopInteraction = variant === "blue" 
     ? `
-      /* Blue Desktop */
+      /* Blue Button */
       md:shadow-[3px_3px_12px_#a1a6ac,-3px_-3px_12px_rgba(255,255,255,0.5)]
       md:active:scale-[0.95] cursor-pointer 
       text-white
       ${isClicked ? "md:scale-[0.95]" : "md:scale-100"}
     ` 
     : `
-      /* Gray/White Desktop */
+      /* Gray Button */
       md:shadow-[3px_3px_32px_#bec3c9,-3px_-3px_12px_rgba(255,255,255,0.5)]
       md:active:scale-[0.95]
       cursor-pointer
@@ -63,17 +59,13 @@ export default function GradientButton({
 
   const combinedClasses = `${baseStyles} ${desktopInteraction} ${className}`;
 
-  // --- 3. CSS GLOBAL ---
   const GlobalStyles = () => (
     <style jsx global>{`
-      /* --- ELEMENTUL DE FUNDAL (GRADIENT) --- */
       .gradient-btn-blue::before,
       .gradient-btn-gray::before {
         content: "";
         position: absolute;
         
-        /* TRUCUL FINAL: Facem gradientul putin mai mare decat butonul (-2px) */
-        /* Asta rezolva linia alba la animatie FARA sa adauge border vizibil */
         top: -2px;
         left: -2px;
         right: -2px;
@@ -84,7 +76,6 @@ export default function GradientButton({
         transition: background-position 0.5s ease;
       }
 
-      /* --- CULORI GRADIENT --- */
       .gradient-btn-blue::before {
         background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%);
       }
@@ -93,16 +84,19 @@ export default function GradientButton({
         background-image: linear-gradient(45deg, #f0f4f8 0%, #e6ebf2 51%, #f0f4f8 100%);
       }
 
-      /* --- ANIMATIE HOVER --- */
       .gradient-btn-blue:hover::before, .gradient-btn-blue:active::before,
       .gradient-btn-gray:hover::before, .gradient-btn-gray:active::before {
         background-position: right center;
       }
 
-      /* --- MOBILE --- */
       @media (max-width: 767px) {
         .gradient-btn-blue:hover::before, .gradient-btn-gray:hover::before {
           background-position: 0 0; 
+        }
+
+        .gradient-btn-blue:active::before, .gradient-btn-gray:active::before {
+          background-position: right center !important;
+          transition: background-position 0.3s ease-out !important;
         }
       }
     `}</style>

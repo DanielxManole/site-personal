@@ -3,22 +3,19 @@
 import React, { useState } from "react";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 import ContactModal from "./ContactModal";
-import GradientButton from "./GradientButton"; // <--- IMPORTA COMPONENTA NOUA
+import GradientButton from "./GradientButton";
 
 export default function Footer() {
   const { ref, isVisible } = useScrollReveal(0.4);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBtnClicked, setIsBtnClicked] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleEmailClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (isProcessing) return;
     setIsProcessing(true);
-    setIsBtnClicked(true);
 
     setTimeout(() => {
-      setIsBtnClicked(false);
       setIsModalOpen(true);
       localStorage.setItem('modalOpen', 'true');
       setIsProcessing(false);
@@ -68,12 +65,10 @@ export default function Footer() {
 
           <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
             
-            {/* Buton Email - Folosind Componenta Reutilizabila */}
             <GradientButton 
               variant="blue" 
-              onClick={handleEmailClick} 
+              onClick={handleEmailClick}
               disabled={isProcessing}
-              isClicked={isBtnClicked}
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -86,20 +81,17 @@ export default function Footer() {
               Trimite{'\u00A0'}Email
             </GradientButton>
 
-            {/* Buton LinkedIn */}
             <GradientButton 
               variant="gray"
               href="https://www.linkedin.com/in/manoledaniel/"
               target="_blank"
             >
-              {/* Container flex pentru a alinia iconita cu textul */}
               <div className="flex items-center justify-center gap-0.5">
                 
                 <span className="text-[#0a66c2]">Linked</span>
 
-                {/* ICONIȚA SVG LINKEDIN (Vectorială) */}
                 <svg 
-                  className="w-5 h-5 text-[#0a66c2]" // Culoarea albastră oficială
+                  className="w-5 h-5 text-[#0a66c2]"
                   fill="currentColor" 
                   viewBox="0 0 24 24" 
                   aria-hidden="true"

@@ -19,6 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://manoledaniel.vercel.app"),
   title: "Manole Daniel | Inginerie & Robotică",
   description: "Portofoliu personal - Student la Inginerie Industrială și Robotică (UNSTPB).",
   keywords: ["Manole Daniel", "Inginerie", "Robotică", "CAD", "CATIA", "Portofoliu", "Next.js", "Student"],
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ro_RO",
-    url: "https://manoledaniel.vercel.app",
+    url: "https://manoledaniel.vercel.app/",
     title: "Manole Daniel | Portfolio",
     description: "Vezi proiectele mele de CAD, Robotică și Software.",
     siteName: "Manole Daniel Portfolio",
