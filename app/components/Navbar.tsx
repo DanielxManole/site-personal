@@ -387,7 +387,7 @@ export default function Navbar() {
             </AnimatedLink>
           ))}
         </div>
-        <div className="absolute bottom-20 text-center font-bold">
+        <div className="absolute bottom-15 text-center font-bold">
           <p className="font-mono text-xs text-slate-600 tracking-widest select-none">
             LOC_COORDS:{" "}
             <span className="text-blue-500 font-bold font-bold select-none">
@@ -445,4 +445,5 @@ export default function Navbar() {
       `}</style>
     </nav>
   );
+
 }
