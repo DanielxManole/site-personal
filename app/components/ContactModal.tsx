@@ -47,6 +47,19 @@ useEffect(() => {
   return () => window.removeEventListener("hashchange", handleHashChange);
 }, [isOpen, onClose]);
 
+
+  useEffect(() => {
+  if (isOpen) {
+    localStorage.setItem('modalOpen', 'true');
+    // Forțăm un event pentru ca Navbar să simtă schimbarea instantaneu
+    window.dispatchEvent(new Event("storage")); 
+  } else {
+    localStorage.setItem('modalOpen', 'false');
+    window.dispatchEvent(new Event("storage"));
+  }
+}, [isOpen]);
+
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -93,9 +106,12 @@ useEffect(() => {
     };
   }, [isOpen]);
   
-  useEffect(() => {
+useEffect(() => {
+  // Folosim showModal în loc de isOpen. 
+  // showModal rămâne true încă 300ms cât durează animația de exit.
   const isMobile = window.innerWidth <= 767;
-  if (isOpen && isMobile) {
+  
+  if (showModal && isMobile) {
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
@@ -114,7 +130,7 @@ useEffect(() => {
       });
     };
   }
-}, [isOpen]);
+}, [showModal]);
 
   // ESC
   useEffect(() => {

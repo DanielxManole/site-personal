@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 
 const menuItems = [
   { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
@@ -50,7 +49,24 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  const touchStartRef = useRef(0);
+  // 1. Am mutat declarația AICI (la început) și am șters-o pe cea de jos
+  const [hideHamburger, setHideHamburger] = useState(false);
+
+  useEffect(() => {
+    const checkModal = () => {
+      // Verificăm localStorage, dar ne bazăm și pe stilul body pentru swipe
+      setHideHamburger(localStorage.getItem('modalOpen') === 'true');
+    };
+    
+    checkModal();
+    window.addEventListener('storage', checkModal);
+    const interval = setInterval(checkModal, 100);
+    
+    return () => {
+      window.removeEventListener('storage', checkModal);
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -64,9 +80,9 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
+  // 2. Logica de SWIPE cu verificarea de siguranță
   useEffect(() => {
     const minSwipeDistance = 70; 
-    
     const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40);
 
     let touchStartX = 0;
@@ -74,6 +90,12 @@ export default function Navbar() {
     let isSwipeIgnored = false;
 
     const handleTouchStart = (e: TouchEvent) => {
+      // AICI ESTE FIXUL: Dacă body e fixed (modal deschis) sau hideHamburger e true, ignorăm swipe-ul
+      if (document.body.style.position === 'fixed' || hideHamburger) {
+        isSwipeIgnored = true;
+        return;
+      }
+
       const target = e.target as HTMLElement;
       if (target.closest('.prevent-nav-swipe')) {
         isSwipeIgnored = true;
@@ -126,24 +148,9 @@ export default function Navbar() {
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, hideHamburger]); 
 
-
-  const [hideHamburger, setHideHamburger] = useState(false);
-  useEffect(() => {
-    const checkModal = () => {
-      setHideHamburger(localStorage.getItem('modalOpen') === 'true');
-    };
-    
-    checkModal();
-    window.addEventListener('storage', checkModal);
-    const interval = setInterval(checkModal, 100);
-    
-    return () => {
-      window.removeEventListener('storage', checkModal);
-      clearInterval(interval);
-    };
-  }, []);
+  // (Am șters duplicatul lui hideHamburger de aici)
 
   useEffect(() => {
     if (isMobileMenuOpen) return;

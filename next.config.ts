@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true, 
 
   images: {
-    qualities: [70, 75, 85, 90],
+    qualities: [100, 70, 75, 85, 90],
 },
 
 };

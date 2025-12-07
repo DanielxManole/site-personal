@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, {useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 
 const containerVariants: Variants = {
@@ -35,40 +35,82 @@ interface SkillBadgeProps {
 }
 
 const SkillBadge = ({ name, type }: SkillBadgeProps) => {
-  const [isActive, setIsActive] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  
   const isSoftware = type === 'software';
 
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.matchMedia("(min-width: 768px)").matches);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
   const handleClick = () => {
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      return;
-    }
-    setIsActive(!isActive);
+    if (isDesktop || isAnimating) return; 
+
+    setIsAnimating(true);
+    setIsClicked(!isClicked);
   };
 
-  const baseClasses = "px-3 py-1 text-sm font-mono font-bold border transition-all duration-200 ease-out select-none";
-  const interactionClasses = "cursor-pointer md:cursor-default touch-manipulation active:scale-[0.95] md:active:scale-100";
-  const defaultClasses = "text-slate-700 bg-transparent border-slate-600";
+  const desktopHoverClasses = isSoftware
+    ? "md:hover:bg-slate-800 md:hover:border-slate-800 md:hover:text-white"
+    : "md:hover:bg-orange-900 md:hover:border-orange-900 md:hover:text-white";
 
-  const activeColorClasses = isSoftware
-    ? "bg-slate-800 border-slate-800 text-white"
-    : "bg-orange-900 border-orange-900 text-white";
-
-  const hoverClasses = isSoftware
-    ? "hover:bg-slate-800 hover:border-slate-800 hover:text-white"
-    : "hover:bg-orange-900 hover:border-orange-900 hover:text-white";
+  const mobileActiveBorder = isSoftware ? "border-slate-800" : "border-orange-900";
+  const mobileOverlayBg = isSoftware ? "bg-slate-800" : "bg-orange-900";
 
   return (
-    <span
+    <motion.button
       onClick={handleClick}
+      whileTap={{ scale: 0.95 }}
+      disabled={isAnimating && !isDesktop}
       className={`
-        ${baseClasses}
-        ${interactionClasses}
-        ${isActive ? activeColorClasses : defaultClasses} 
-        ${hoverClasses} 
+        relative px-3 py-1 text-sm font-mono font-bold border rounded-sm
+        cursor-pointer md:cursor-default touch-manipulation select-none overflow-hidden
+        transition-colors duration-200 ease-out
+        text-slate-700
+        
+        ${/* FIX: Dacă e activ pe mobil, punem culoarea specifică. Dacă nu, punem slate-600 (default) */ ""}
+        ${(!isDesktop && isClicked) ? mobileActiveBorder : "border-slate-600"}
+        
+        ${desktopHoverClasses}
       `}
     >
-      {name}
-    </span>
+      <span className="relative z-0">
+        {name}
+      </span>
+
+      {!isDesktop && (
+        <motion.div
+          initial={{ clipPath: "inset(0% 100% 0% 0%)" }}
+          animate={
+            isClicked
+              ? { clipPath: "inset(0% 0% 0% 0%)" } 
+              : { 
+                  clipPath: "inset(0% 0% 0% 100%)",
+                  transitionEnd: { clipPath: "inset(0% 100% 0% 0%)" }
+                }
+          }
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          
+          onAnimationComplete={() => setIsAnimating(false)}
+
+          className={`
+            absolute -inset-[1px] z-10 flex items-center justify-center
+            ${mobileOverlayBg}
+          `}
+        >
+          <span className="text-white whitespace-nowrap px-3">
+            {name}
+          </span>
+        </motion.div>
+      )}
+    </motion.button>
   );
 };
 
