@@ -1,7 +1,9 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function HashScroll() {
+  const isInitialLoad = useRef(true);
+
   useEffect(() => {
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
@@ -20,7 +22,11 @@ export default function HashScroll() {
         const element = document.getElementById(id);
 
         if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
+          const behavior = isInitialLoad.current ? "auto" : "smooth";
+          
+          element.scrollIntoView({ behavior: behavior, block: "start" });
+          
+          isInitialLoad.current = false;
         } else {
           attempts++;
           if (attempts < maxAttempts) {
@@ -33,10 +39,16 @@ export default function HashScroll() {
     };
 
     scrollToHash();
-    window.addEventListener("hashchange", scrollToHash);
+
+    const handleHashChange = () => {
+        isInitialLoad.current = false; 
+        scrollToHash();
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
 
     return () => {
-      window.removeEventListener("hashchange", scrollToHash);
+      window.removeEventListener("hashchange", handleHashChange);
       if ("scrollRestoration" in history) {
         history.scrollRestoration = "auto";
       }

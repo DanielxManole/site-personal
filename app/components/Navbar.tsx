@@ -86,7 +86,7 @@ export default function Navbar() {
     let isSwipeIgnored = false;
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (document.body.style.position === 'fixed' || hideHamburger) {
+      if (document.body.style.overflow === 'hidden' || hideHamburger) {
         isSwipeIgnored = true;
         return;
       }

@@ -51,7 +51,7 @@ useEffect(() => {
   useEffect(() => {
   if (isOpen) {
     localStorage.setItem('modalOpen', 'true');
-    // Forțăm un event pentru ca Navbar să simtă schimbarea instantaneu
+
     window.dispatchEvent(new Event("storage")); 
   } else {
     localStorage.setItem('modalOpen', 'false');
@@ -107,32 +107,21 @@ useEffect(() => {
   }, [isOpen]);
   
 useEffect(() => {
-  const isMobile = window.innerWidth <= 767;
-
-  if (showModal && isMobile) {
-    const scrollY = window.scrollY;
-    const lockTimer = setTimeout(() => {
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-    }, 10);
-
-    return () => {
-      clearTimeout(lockTimer);
-      if (document.body.style.position === 'fixed') {
-        const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-        
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        
-        window.scrollTo({
-          top: savedScroll,
-          behavior: 'instant'
-        });
-      }
-    };
+  if (showModal) {
+    // Blocăm scroll-ul simplu. Nu mai cauzează sărituri vizuale.
+    document.body.style.overflow = 'hidden';
+    // Opțional: prevent bounce pe iOS
+    document.body.style.overscrollBehavior = 'none'; 
+  } else {
+    // Curățăm stilurile
+    document.body.style.overflow = '';
+    document.body.style.overscrollBehavior = '';
   }
+
+  return () => {
+    document.body.style.overflow = '';
+    document.body.style.overscrollBehavior = '';
+  };
 }, [showModal]);
 
   // ESC
@@ -272,7 +261,7 @@ useEffect(() => {
     </svg>
   );
 
-  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out ${
+  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out select-none ${
     pulseHigh ? "opacity-100" : "opacity-40"
   }`;
 
@@ -326,7 +315,7 @@ useEffect(() => {
         </p>
 
         {status === "SUCCESS" ? (
-          <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4">
+          <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4 select-none">
             <div className="flex flex-col items-center text-green-600">
               <div className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2">
                 ✓
@@ -346,7 +335,7 @@ useEffect(() => {
             {["nume", "email", "mesaj"].map((field) => (
               <div key={field} className="space-y-1">
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none">
+                  <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none !cursor-default">
                     {field.charAt(0).toUpperCase() + field.slice(1)}
                   </label>
                   {errors[field] && <span className={syncPulseClass}>{errors[field]}</span>}
@@ -414,7 +403,7 @@ useEffect(() => {
             </button>
 
             {status === "ERROR" && (
-              <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg">
+              <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none">
                 Eroare de sistem. Încearcă pe mail direct.
               </p>
             )}

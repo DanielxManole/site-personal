@@ -12,6 +12,12 @@ body {
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+.fara-scroll {
+    overflow: hidden;
+    touch-action: none;
 }
 
 ::selection {
