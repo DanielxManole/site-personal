@@ -89,7 +89,6 @@ export default function Footer() {
               <div className="flex items-center justify-center gap-0.5">
                 
                 <span className="text-[#0a66c2]">Linked</span>
-
                 <svg 
                   className="w-5 h-5 text-[#0a66c2]"
                   fill="currentColor" 

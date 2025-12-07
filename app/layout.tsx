@@ -57,7 +57,6 @@ export default function RootLayout({
     <html lang="ro" className="scroll-smooth bg-[#e0e5ec]"> 
       
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased opacity-0 fade-in-on-load`}>
-        
         <HashScroll />
         <ConsoleMsg />
         <CADCursor />

@@ -75,7 +75,6 @@ const SkillBadge = ({ name, type }: SkillBadgeProps) => {
         transition-colors duration-200 ease-out
         text-slate-700
         
-        ${/* FIX: Dacă e activ pe mobil, punem culoarea specifică. Dacă nu, punem slate-600 (default) */ ""}
         ${(!isDesktop && isClicked) ? mobileActiveBorder : "border-slate-600"}
         
         ${desktopHoverClasses}

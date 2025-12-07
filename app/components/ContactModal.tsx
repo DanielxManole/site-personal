@@ -107,27 +107,30 @@ useEffect(() => {
   }, [isOpen]);
   
 useEffect(() => {
-  // Folosim showModal în loc de isOpen. 
-  // showModal rămâne true încă 300ms cât durează animația de exit.
   const isMobile = window.innerWidth <= 767;
-  
+
   if (showModal && isMobile) {
     const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    
+    const lockTimer = setTimeout(() => {
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    }, 10);
+
     return () => {
-      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-      
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      
-      window.scrollTo({
-        top: savedScroll,
-        behavior: 'instant'
-      });
+      clearTimeout(lockTimer);
+      if (document.body.style.position === 'fixed') {
+        const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+        
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        
+        window.scrollTo({
+          top: savedScroll,
+          behavior: 'instant'
+        });
+      }
     };
   }
 }, [showModal]);

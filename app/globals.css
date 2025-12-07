@@ -118,16 +118,16 @@ button,
 input[type="submit"],
 a,
 label {
-  -webkit-user-select: none;   /* Safari / iOS */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* IE/Edge */
-  user-select: none;           /* Standard */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
-  -webkit-tap-highlight-color: transparent; /* Elimină highlight la touch */
-  touch-action: manipulation;  /* Gesturi touch simple */
-  cursor: pointer;             /* Cursor pointer pe desktop */
-  outline: none;               /* Elimină conturul la click (opțional) */
-  -webkit-touch-callout: none; /* Dezactivează meniul contextual pe iOS */
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+  outline: none;
+  -webkit-touch-callout: none;
 }
 
 body[data-modal-open] button[aria-label="Menu"] {

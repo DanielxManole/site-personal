@@ -48,13 +48,10 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const progressBarRef = useRef<HTMLDivElement>(null);
-
-  // 1. Am mutat declarația AICI (la început) și am șters-o pe cea de jos
   const [hideHamburger, setHideHamburger] = useState(false);
 
   useEffect(() => {
     const checkModal = () => {
-      // Verificăm localStorage, dar ne bazăm și pe stilul body pentru swipe
       setHideHamburger(localStorage.getItem('modalOpen') === 'true');
     };
     
@@ -80,7 +77,6 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  // 2. Logica de SWIPE cu verificarea de siguranță
   useEffect(() => {
     const minSwipeDistance = 70; 
     const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40);
@@ -90,7 +86,6 @@ export default function Navbar() {
     let isSwipeIgnored = false;
 
     const handleTouchStart = (e: TouchEvent) => {
-      // AICI ESTE FIXUL: Dacă body e fixed (modal deschis) sau hideHamburger e true, ignorăm swipe-ul
       if (document.body.style.position === 'fixed' || hideHamburger) {
         isSwipeIgnored = true;
         return;
@@ -149,8 +144,6 @@ export default function Navbar() {
       document.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isMobileMenuOpen, hideHamburger]); 
-
-  // (Am șters duplicatul lui hideHamburger de aici)
 
   useEffect(() => {
     if (isMobileMenuOpen) return;
@@ -287,9 +280,9 @@ export default function Navbar() {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className={`group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300 ${
-      hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
-    }`}
-  >
+                    hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
+                  }`}
+                >
                 <span
                   className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
                     isMobileMenuOpen ? "rotate-45 translate-y-[9px]" : ""
