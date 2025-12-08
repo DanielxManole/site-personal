@@ -107,30 +107,33 @@ useEffect(() => {
   }, [isOpen]);
   
 useEffect(() => {
-  // Folosim showModal în loc de isOpen. 
-  // showModal rămâne true încă 300ms cât durează animația de exit.
   const isMobile = window.innerWidth <= 767;
-  
+
   if (showModal && isMobile) {
     const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-    
+
+    // 🔥  micro-delay – elimină flickerul pe mobile
+    requestAnimationFrame(() => {
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    });
+
     return () => {
-      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-      
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      
+      const savedScroll = Math.abs(parseInt(document.body.style.top || "0"));
+
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
       window.scrollTo({
         top: savedScroll,
-        behavior: 'instant'
+        behavior: "instant",
       });
     };
   }
 }, [showModal]);
+
 
   // ESC
   useEffect(() => {
@@ -281,7 +284,7 @@ useEffect(() => {
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 will-change-transform">
       <div
         className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${
           isMounted ? "opacity-100" : "opacity-0"
