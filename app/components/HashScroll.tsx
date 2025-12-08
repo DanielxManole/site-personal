@@ -54,7 +54,7 @@ export default function HashScroll() {
         };
 
         attemptScroll();
-      }, 300); // Un delay inițial mai sănătos
+      }, 1000); // Un delay inițial mai sănătos
     };
 
     const handleHashChange = () => {
@@ -85,4 +85,3 @@ export default function HashScroll() {
 
   return null;
 }
-
