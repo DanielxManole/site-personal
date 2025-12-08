@@ -19,15 +19,13 @@ export default function Home() {
   }
   }, []);
 
-  useEffect(() => {
-    const updateSize = () => {
-      if (heroRef.current) {
-        setDimensions({
-          width: heroRef.current.offsetWidth,
-          height: heroRef.current.offsetHeight
-        });
-      }
-    };
+useEffect(() => {
+    const hasHash = window.location.hash.length > 0;
+    if (!sessionStorage.getItem("first-visit") && !hasHash) {
+      window.scrollTo(0, 0);
+      sessionStorage.setItem("first-visit", "true");
+    }
+  }, []);
 
     updateSize();
     window.addEventListener('resize', updateSize);
