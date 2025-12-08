@@ -77,28 +77,36 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       // Fallback pentru desktop
       document.body.style.overflow = 'hidden';
     }
+    
 
     // CLEANUP FUNCTION - Se execută DOAR când componenta dispare complet din DOM
     // (adică după ce se termină animația de Exit din Framer Motion)
     return () => {
-      if (isMobile) {
-        const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        
+      // Executăm cleanup doar dacă body a fost modificat
+      const isBodyFixed = document.body.style.position === 'fixed';
+      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+
+      // Resetăm tot
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+
+      // Dacă am fost pe mobil și aveam scroll salvat, sărim înapoi acolo
+      if (isBodyFixed) {
         window.scrollTo({
           top: savedScroll,
           behavior: 'instant'
         });
-      } else {
-        document.body.style.overflow = '';
       }
 
-      localStorage.setItem('modalOpen', 'false');
-      window.dispatchEvent(new Event("storage"));
+      if (!isOpen) {
+        localStorage.setItem('modalOpen', 'false');
+        window.dispatchEvent(new Event("storage"));
+      }
     };
-  }, [isOpen]); 
+  }, [isOpen]);
   // Notă: Chiar dacă isOpen se schimbă în false, AnimatePresence ține componenta
   // montată până la finalul animației, deci cleanup-ul rulează la momentul perfect.
 
@@ -287,7 +295,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-slate-900/20 bg-slate-900/20"
             onClick={onClose}
           />
 
