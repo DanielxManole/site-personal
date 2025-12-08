@@ -18,18 +18,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   const [shouldRender, setShouldRender] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
   const pathname = usePathname();
 
-  // 1. Reset la schimbarea rutei
+  // --- LOGICA DE STATE ȘI LIFESTYLE (Aceasta era bună, o păstrăm) ---
+
   useEffect(() => {
     if (isOpen) onClose();
   }, [pathname]);
 
-  // 2. Închide la hash change
   useEffect(() => {
     const handleHashChange = () => {
       if (isOpen) onClose();
@@ -38,12 +37,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [isOpen, onClose]);
 
-  // 3. Animație și Randare
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-
     if (isOpen) {
       setShouldRender(true);
+      // Dublu requestAnimationFrame pentru a garanta randarea înainte de tranziție
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
@@ -59,25 +57,22 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setCountdown(3);
       }, 300);
     }
-
     return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  // 4. SCROLL LOCK
-  // Am scos 'touch-action: none' pentru că bloca ajustarea nativă a tastaturii
+  // SCROLL LOCK - SIMPLIFICAT LA MAXIMUM
+  // Doar overflow hidden pe body e suficient în 2024 pentru majoritatea cazurilor
   useEffect(() => {
     if (shouldRender) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-
     return () => {
       document.body.style.overflow = '';
     };
   }, [shouldRender]);
 
-  // ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -86,14 +81,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // Pulse Error
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Countdown
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -103,7 +96,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-  if (!shouldRender) return null;
+  // --- LOGICA DE FORMULAR ---
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -112,7 +105,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (name === "mesaj") finalValue = value.charAt(0).toUpperCase() + value.slice(1);
 
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
-
     if (errors[name]) {
       setErrors((prev) => {
         const newErr = { ...prev };
@@ -145,7 +137,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const error = getFieldError(name, value);
-
     setErrors((prev) => {
       const newErr = { ...prev };
       if (error) newErr[name] = error;
@@ -157,9 +148,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setStatus("SENDING");
-
     const dataToSend = {
       access_key: "57970ddb-901c-4dca-aff4-b5ebceaf43ea",
       name: formData.nume,
@@ -173,47 +162,29 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(dataToSend),
       });
-
       const result = await response.json();
-
-      if (result.success) {
-        setStatus("SUCCESS");
-      } else {
-        console.error("Web3Forms Error:", result);
-        setStatus("ERROR");
-      }
+      if (result.success) setStatus("SUCCESS");
+      else setStatus("ERROR");
     } catch (error) {
       console.error("Network Error:", error);
       setStatus("ERROR");
     }
   };
 
+  // --- COMPONENTE UI ---
+
   const WarningIcon = ({ shake }: { shake?: boolean }) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      className={`w-7 h-7 drop-shadow-sm ${shake ? "animate-shake" : ""}`}
-    >
-      <path
-        fill="#ef4444"
-        d="M4.47 20.504h15.06c1.54 0 2.5-1.67 1.73-3l-7.53-13.01c-.77-1.33-2.69-1.33-3.46 0L2.74 17.504c-.77 1.33.19 3 1.73 3z"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={`w-7 h-7 drop-shadow-sm ${shake ? "animate-shake" : ""}`}>
+      <path fill="#ef4444" d="M4.47 20.504h15.06c1.54 0 2.5-1.67 1.73-3l-7.53-13.01c-.77-1.33-2.69-1.33-3.46 0L2.74 17.504c-.77 1.33.19 3 1.73 3z" />
       <path fill="#fff" d="M12 14a1 1 0 0 1-1-1v-2.5a1 1 0 0 1 2 0V13a1 1 0 0 1-1 1zm0 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
     </svg>
   );
 
-  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out select-none ${
-    pulseHigh ? "opacity-100" : "opacity-40"
-  }`;
-
-  // IMPORTANT: Am scos 'transition-all' de aici. Input-urile nu trebuie să aibă tranziție pe layout.
-  // Am lăsat doar 'transition-colors' sau specific.
+  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out select-none ${pulseHigh ? "opacity-100" : "opacity-40"}`;
+  
   const inputClass = (hasError: boolean) =>
     `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
      shadow-[inset_3px_3px_6px_#bec3c9] 
@@ -221,35 +192,43 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
      placeholder:text-slate-400 
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
-  return (
-    // MODIFICARE MAJORĂ STRUCTURĂ:
-    // 1. 'fixed inset-0' asigură că ocupă tot ecranul.
-    // 2. 'z-[100]' e peste tot.
-    // 3. 'overflow-y-auto' permite scroll.
-    // 4. NU folosim flex-center pe containerul mare. Folosim 'min-h-full' și 'flex' doar pentru a gestiona spațiul.
-    <div className="fixed inset-0 z-[100] overflow-y-auto">
-      
-      {/* Wrapper flexibil care se asigură că modalul e centrat doar când e loc */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        
-        {/* BACKDROP - Fixed în spate, nu se mișcă la scroll */}
-        <div
-          className={`fixed inset-0 bg-slate-900/20 transition-opacity duration-300 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-          onClick={onClose}
-        />
+  if (!shouldRender) return null;
 
-        {/* MODAL */}
-        {/* IMPORTANT: Am înlocuit 'transition-all' cu 'transition-opacity transition-transform'. 
-            Asta previne glitch-ul când tastatura schimbă dimensiunea ecranului. */}
+  return (
+    // FIX SUPREM: Container fix care ocupă tot ecranul și are scroll propriu
+    <div className="fixed inset-0 z-[100] overflow-y-auto overflow-x-hidden bg-slate-900/20 backdrop-blur-xs"
+         // Atribuim eventul de click pe fundal aici
+         onClick={(e) => {
+           if (e.target === e.currentTarget) onClose();
+         }}
+    >
+      
+      {/* LAYOUT CONTAINER
+         - Pe mobil: min-h-full, dar NU items-center. Folosim 'pt-12' și 'pb-96'.
+           pb-96 (padding bottom imens) este trucul. Creează spațiu gol sub formular
+           astfel încât când tastatura urcă, browserul are loc să facă scroll.
+         - Pe desktop (md): items-center, padding normal.
+      */}
+      <div className={`
+        min-h-full w-full 
+        flex flex-col items-center justify-start md:justify-center
+        p-4 pt-40 pb-96 md:py-10
+        transition-all duration-300
+      `}>
+
+        {/* MODAL CARD */}
         <div
-          className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
-          shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
-          border border-white/50 
-          transition-opacity transition-transform duration-300 
-          ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
+          // Oprim propagarea click-ului ca să nu se închidă modalul când dai click pe el
+          onClick={(e) => e.stopPropagation()}
+          className={`
+            relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
+            shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
+            border border-white/50 
+            transition-all duration-300 ease-out
+            ${isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"}
+          `}
         >
+          {/* Close Button */}
           <button
             onClick={() => {
               setCloseBtnClicked(true);
@@ -259,11 +238,10 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               }, 150);
             }}
             className={`
-              mobile-close-btn 
               absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
               text-slate-500 flex items-center justify-center 
               shadow-[3px_3px_6px_#bec3c9] 
-              transition-all select-none
+              transition-all select-none cursor-pointer
               md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
               md:active:scale-95 md:hover:text-blue-400
             `}
@@ -325,7 +303,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                         onBlur={handleBlur}
                       />
                     )}
-
                     {errors[field] && (
                       <div className="absolute right-3 top-3 pointer-events-none">
                         <WarningIcon shake />
@@ -335,35 +312,32 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 </div>
               ))}
 
-              {/* Added padding-bottom to ensure keyboard doesn't hide the button on very small screens */}
-              <div className="pb-2">
-                <button
-                  type="submit"
-                  disabled={status === "SENDING"}
-                  onClick={() => {
-                    setEmailBtnClicked(true);
-                    setTimeout(() => setEmailBtnClicked(false), 150);
-                  }}
-                  className={`
-                    mobile-submit-gradient
-                    w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
-                    shadow-[6px_6px_12px_#bec3c9]
-                    transition-all flex justify-center items-center gap-2
-                    md:active:scale-[0.95]
-                    md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
-                    ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
-                  `}
-                >
-                  {status === "SENDING" ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                      SE TRIMITE...
-                    </>
-                  ) : (
-                    "TRIMITE"
-                  )}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={status === "SENDING"}
+                onClick={() => {
+                  setEmailBtnClicked(true);
+                  setTimeout(() => setEmailBtnClicked(false), 150);
+                }}
+                className={`
+                  mobile-submit-gradient
+                  w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
+                  shadow-[6px_6px_12px_#bec3c9]
+                  transition-all flex justify-center items-center gap-2
+                  md:active:scale-[0.95]
+                  md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
+                  ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
+                `}
+              >
+                {status === "SENDING" ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    SE TRIMITE...
+                  </>
+                ) : (
+                  "TRIMITE"
+                )}
+              </button>
 
               {status === "ERROR" && (
                 <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none">
@@ -389,11 +363,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         }
 
         @media (max-width: 767px) {
+          /* Aceasta este critică: previne zoom-ul și ajustarea automată a fontului pe iOS */
           input, textarea {
             font-size: 16px !important;
           }
 
-          /* Eliminăm transition-all pe mobil pentru a preveni glitch-uri de layout */
           .mobile-submit-gradient {
             background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%) !important;
             background-size: 200% auto !important;
@@ -401,11 +375,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             color: white !important;
             border: none !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
-            transition: background-position 0.5s ease, transform 0.1s ease !important; /* Specific transitions only */
+            transition: background-position 0.5s ease, transform 0.1s ease !important;
             transform: none !important;
             -webkit-tap-highlight-color: transparent;
           }
-          /* ... restul stilurilor ... */
+
           .mobile-submit-gradient:active {
             background-position: right center !important;
             transform: none !important;
@@ -416,20 +390,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
              background-image: none !important;
              cursor: not-allowed !important;
              box-shadow: none !important;
-          }
-
-          .mobile-close-btn {
-            transform: none !important;
-            -webkit-tap-highlight-color: transparent;
-            transition: color 0.1s ease !important;
-          }
-          .mobile-close-btn:active {
-            color: #ef4444 !important; 
-            opacity: 0.7 !important;
-          }
-          .mobile-close-btn:hover {
-            transform: none !important;
-            color: #64748b; 
           }
         }
       `}</style>
