@@ -16,8 +16,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
 
-  const [showModal, setShowModal] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
@@ -38,45 +38,21 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [isOpen, onClose]);
 
-  // 3. LocalStorage event
+  // 3. Animație și Randare
   useEffect(() => {
-    if (isOpen) {
-      localStorage.setItem('modalOpen', 'true');
-      window.dispatchEvent(new Event("storage"));
-    } else {
-      localStorage.setItem('modalOpen', 'false');
-      window.dispatchEvent(new Event("storage"));
-    }
-  }, [isOpen]);
-
-  // 4. Close on global link click
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleGlobalLinkClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest("a");
-      if (target) {
-        const href = target.getAttribute("href");
-        if (href && (href.startsWith("#") || href.includes("/#"))) {
-          setTimeout(() => onClose(), 10);
-        }
-      }
-    };
-    window.addEventListener("click", handleGlobalLinkClick, true);
-    return () => window.removeEventListener("click", handleGlobalLinkClick, true);
-  }, [isOpen, onClose]);
-
-  // 5. Animație de intrare/ieșire
-  useEffect(() => {
-    let domTimer: NodeJS.Timeout;
-    let animationFrame: number;
+    let timeoutId: NodeJS.Timeout;
 
     if (isOpen) {
-      setShowModal(true);
-      animationFrame = requestAnimationFrame(() => setIsMounted(true));
+      setShouldRender(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsVisible(true);
+        });
+      });
     } else {
-      setIsMounted(false);
-      domTimer = setTimeout(() => {
-        setShowModal(false);
+      setIsVisible(false);
+      timeoutId = setTimeout(() => {
+        setShouldRender(false);
         setStatus("IDLE");
         setErrors({});
         setFormData({ nume: "", email: "", mesaj: "" });
@@ -84,40 +60,35 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       }, 300);
     }
 
-    return () => {
-      clearTimeout(domTimer);
-      cancelAnimationFrame(animationFrame);
-    };
+    return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  // ============================================================
-  // SOLUȚIA PENTRU SCROLL (HARD LOCK)
-  // ============================================================
+  // 4. FIX FINAL PENTRU SCROLL (FĂRĂ SALT LA ÎNCEPUT)
   useEffect(() => {
-    if (showModal) {
-      // Salvăm poziția curentă ca să nu pierdem locul în pagină
+    if (shouldRender) {
+      // SALVĂM POZIȚIA CURENTĂ (pentru siguranță maximă)
       const scrollY = window.scrollY;
       
-      // Forțăm body-ul să stea FIX. Asta oprește ORICE scroll de fundal pe mobil.
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflowY = 'scroll'; // Păstrăm scrollbar-ul vizual ca să nu sară lățimea
-    } else {
-      // Când închidem, luăm poziția salvată
-      const scrollY = document.body.style.top;
+      // Aplicăm stilurile DOAR pe body, nu pe documentElement (html)
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100dvh'; // Fixează înălțimea vizuală
+      document.body.style.touchAction = 'none'; // Previne scroll-ul pe fundal pe mobil
       
-      // Resetăm stilurile
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflowY = '';
-
-      // Sărim înapoi unde eram
-      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      // Opțional: Dacă totuși sare, putem forța revenirea (dar de obicei nu mai e nevoie)
+      // window.scrollTo(0, scrollY);
+    } else {
+      // Resetăm
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.touchAction = '';
     }
-  }, [showModal]);
 
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.touchAction = '';
+    };
+  }, [shouldRender]);
 
   // ESC key
   useEffect(() => {
@@ -145,7 +116,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-  if (!showModal) return null;
+  if (!shouldRender) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -262,35 +233,26 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
   return (
-    // FIX CSS LAYOUT:
-    // 1. overflow-y-auto: Permite modalului să facă scroll intern, dar nu afectează body-ul
-    // 2. h-[100dvh]: Folosește Dynamic Viewport Height pentru mobile bars
-    <div className="fixed inset-0 z-[100] overflow-y-auto h-[100dvh] w-screen">
+    // Overscroll-contain pe containerul principal e cheia secundară
+    <div className="fixed inset-0 z-[100] overflow-y-auto h-[100dvh] w-screen overscroll-contain">
       
-      {/* LAYOUT FIX:
-         - Am schimbat 'items-center' (care centra vertical) cu 'items-start'.
-         - Am adăugat 'pt-20 md:pt-0' și 'md:items-center'.
-         
-         EXPLICATIE: Pe mobil, modalul începe de sus (cu puțin padding). Când apare tastatura,
-         partea de jos e acoperită, dar partea de sus rămâne FIXĂ. Nu mai "sare" încercând să se centreze.
-      */}
       <div className="flex min-h-full w-full items-start justify-center p-4 pt-24 md:items-center md:pt-4">
         
         {/* BACKDROP */}
         <div
           className={`fixed inset-0 bg-slate-900/20 transition-opacity duration-300 ${
-            isMounted ? "opacity-100" : "opacity-0"
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
           onClick={onClose}
         />
 
-        {/* MODAL CONTAINER */}
+        {/* MODAL */}
         <div
           className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
           shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
           border border-white/50 
           transform transition-all duration-300 mb-10
-          ${isMounted ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
+          ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
         >
           <button
             onClick={() => {
@@ -428,8 +390,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         }
 
         @media (max-width: 767px) {
-          /* FIX SUPLIMENTAR: Asigură-te că inputurile au text de 16px pe mobil 
-             pentru a preveni zoom-ul automat al iPhone-ului */
           input, textarea {
             font-size: 16px !important;
           }
