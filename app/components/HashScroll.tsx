@@ -49,7 +49,7 @@ export default function HashScroll() {
           if (!success && attempts < maxAttempts) {
             attempts++;
             // Mărim intervalul la 100ms pentru a nu spama browserul
-            setTimeout(attemptScroll, 100); 
+            setTimeout(attemptScroll, 300); 
           }
         };
 
@@ -85,3 +85,4 @@ export default function HashScroll() {
 
   return null;
 }
+
