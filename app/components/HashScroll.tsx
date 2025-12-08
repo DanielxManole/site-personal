@@ -29,7 +29,7 @@ export default function HashScroll() {
       };
       setTimeout(() => {
         checkElement();
-      }, 500);
+      }, 2000);
     };
 
     scrollToHash();
