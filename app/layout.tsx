@@ -9,17 +9,18 @@ import GlobalPointerLock from "./components/GlobalPointerLock";
 
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ["latin"],
+  preload: false,
   variable: "--font-space", 
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   display: 'swap',
+  preload: false,
   variable: "--font-jetbrains", 
 });
 
 export const metadata: Metadata = {
-  // ... metadata-ul tău ...
   title: "Manole Daniel | Inginerie & Robotică",
   description: "Portofoliu personal",
 };
@@ -37,23 +38,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ro" className="bg-[#e0e5ec]"> 
-      {/* 1. SCOATE 'opacity-0' și 'fade-in-on-load' DE PE BODY !!!
-         Asta repara bug-ul vizual cu Navbar-ul.
-      */}
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased`}>
         
         <HashScroll />
         <ConsoleMsg />
         <CADCursor />
-        
-        {/* Navbar-ul stă "liber" în body, neafectat de animații */}
         <Navbar />
-        
         <GlobalPointerLock />
-
-        {/* 2. Mutăm animația aici, doar pe conținutul paginii.
-           Astfel, pagina face fade-in, dar Navbar-ul rămâne țeapăn.
-        */}
         <div className="opacity-0 fade-in-on-load">
             {children}
         </div>

@@ -175,7 +175,7 @@ export default function About() {
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
                         <p className="text-sm font-bold text-slate-700 flex items-center">Python Certificate
                           <img
-                            src="/images/hackerrank.png"
+                            src="/images/hackerrank-logo.png"
                             alt="HackerRank Logo"
                             width={20}
                             height={20}
@@ -188,7 +188,7 @@ export default function About() {
                     <div className="p-4 rounded-xl bg-[#e0e5ec] shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_rgba(255,255,255,0.5)]">
                         <p className="text-sm font-bold text-slate-700 flex items-center">Software Engineer Certificate
                           <img
-                            src="/images/hackerrank.png"
+                            src="/images/hackerrank-logo.png"
                             alt="HackerRank Logo"
                             width={20}
                             height={20}

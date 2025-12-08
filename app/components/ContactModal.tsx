@@ -9,7 +9,6 @@ interface ContactModalProps {
   onClose: () => void;
 }
 
-// 1. Variantele pentru DESKTOP (Animația originală)
 const desktopModalVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -34,10 +33,9 @@ const desktopModalVariants: Variants = {
   }
 };
 
-// 2. Variantele pentru MOBIL (Fără animație de intrare, doar exit)
 const mobileModalVariants: Variants = {
   hidden: {
-    opacity: 1, // Pornim direct vizibil
+    opacity: 1,
     scale: 1,
     y: 0
   },
@@ -45,13 +43,13 @@ const mobileModalVariants: Variants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0 } // Durata 0 pentru a fi instant
+    transition: { duration: 0 }
   },
   exit: {
     opacity: 0,
     scale: 0.95,
     y: 20,
-    transition: { duration: 0.2 } // Păstrăm animația de ieșire
+    transition: { duration: 0.2 }
   }
 };
 
@@ -68,26 +66,21 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [formData, setFormData] = useState({ nume: "", email: "", mesaj: "" });
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
-  
-  // State nou pentru detectarea mobilului
   const [isMobile, setIsMobile] = useState(false);
   
   const pathname = usePathname();
 
-  // Detectăm dacă suntem pe mobil
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 767);
-    checkMobile(); // Verificăm la montare
+    checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Reset la schimbarea rutei
   useEffect(() => {
     if (isOpen) onClose();
   }, [pathname]);
 
-  // Scroll Lock Logic
   useEffect(() => {
     if (!isOpen) return;
 
@@ -113,9 +106,23 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         window.scrollTo({ top: savedScroll, behavior: 'instant' });
       }
     };
-  }, [isOpen, isMobile]); // Am adăugat isMobile la dependențe
+  }, [isOpen, isMobile]);
 
-  // Resetare stare după închidere
+  useEffect(() => {
+    if (isOpen) {
+      localStorage.setItem('modalOpen', 'true');
+      window.dispatchEvent(new Event('modal-change'));
+    } else {
+      localStorage.setItem('modalOpen', 'false');
+      window.dispatchEvent(new Event('modal-change'));
+    }
+
+    return () => {
+      localStorage.setItem('modalOpen', 'false');
+      window.dispatchEvent(new Event('modal-change'));
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => {
@@ -128,7 +135,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     }
   }, [isOpen]);
 
-  // ESC Key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -137,14 +143,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // Pulse Error
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Countdown logic
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -154,7 +158,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-  // --- FORM HANDLERS ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;
@@ -203,7 +206,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // Pe mobil, scrollIntoView poate cauza glitch-uri uneori, dar îl lăsăm condiționat
     if (window.innerWidth > 767) {
       setTimeout(() => {
         e.target.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -258,7 +260,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 will-change-transform">
-          {/* Backdrop */}
           <motion.div
             key="backdrop"
             variants={backdropVariants}
@@ -269,7 +270,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             onClick={onClose}
           />
 
-          {/* Modal Content - Aici aplicăm logica condițională pentru variante */}
           <motion.div
             key="modal-content"
             variants={isMobile ? mobileModalVariants : desktopModalVariants}
@@ -310,7 +310,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                        className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2"
+                        className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2 select-none"
                     >
                       ✓
                     </motion.div>
@@ -318,14 +318,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   </div>
                   <div className="w-full h-px bg-slate-300/50"></div>
                   <div className="flex flex-col items-center">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 select-none">
                       Fereastra se închide automat în
                     </p>
                     <motion.div 
                       key={countdown}
                       initial={{ scale: 1.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="text-6xl font-black text-slate-700"
+                      className="text-6xl font-black text-slate-700 select-none"
                     >
                         {countdown}
                     </motion.div>
@@ -345,11 +345,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   {["nume", "email", "mesaj"].map((field) => (
                     <div key={field} className="space-y-1">
                       <div className="flex justify-between items-center mb-1">
-                        <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none">
+                        <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none cursor-default!">
                           {field.charAt(0).toUpperCase() + field.slice(1)}
                         </label>
                         {errors[field] && (
-                          <span className={`text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out ${pulseHigh ? "opacity-100" : "opacity-40"}`}>
+                          <span className={`text-[10px] text-red-500 select-none font-mono font-bold transition-opacity duration-1000 ease-in-out ${pulseHigh ? "opacity-100" : "opacity-40"}`}>
                             {errors[field]}
                           </span>
                         )}
@@ -416,7 +416,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                     <motion.p 
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
-                        className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg"
+                        className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none"
                     >
                       Eroare de sistem. Încearcă pe mail direct.
                     </motion.p>

@@ -24,19 +24,11 @@ function AnimatedLink({
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
-    // Nu folosim preventDefault aici dacă vrem ca ancora să funcționeze natural,
-    // dar pentru animație și control e ok.
-    
-    // NOTĂ: window.location.href forțează un refresh complet al paginii. 
-    // Dacă ești în Next.js, ideal ar fi să folosești router.push sau comportamentul default al ancorei.
-    // Am lăsat logica ta, dar am asigurat că onClick se execută primul.
-    
     if (onClick) onClick();
     
     setIsClicked(true);
     setTimeout(() => {
         setIsClicked(false);
-        // Mutăm navigarea aici sau o lăsăm naturală dacă scoatem e.preventDefault()
         window.location.href = href; 
     }, 150);
     
@@ -62,24 +54,20 @@ export default function Navbar() {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [hideHamburger, setHideHamburger] = useState(false);
 
-  // Verificare localStorage pentru modal
   useEffect(() => {
     const checkModal = () => {
-      // Asigură-te că logica din restul site-ului șterge 'modalOpen' când trebuie
       setHideHamburger(localStorage.getItem('modalOpen') === 'true');
     };
-    
     checkModal();
     window.addEventListener('storage', checkModal);
-    const interval = setInterval(checkModal, 500); // Mărit intervalul la 500ms pentru performanță
+    window.addEventListener('modal-change', checkModal);
     
     return () => {
       window.removeEventListener('storage', checkModal);
-      clearInterval(interval);
+      window.removeEventListener('modal-change', checkModal);
     };
   }, []);
 
-  // Blocare scroll body
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -91,37 +79,39 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  // Logică Swipe
 useEffect(() => {
     const minSwipeDistance = 70; 
     const triggerZoneStart = typeof window !== 'undefined' ? window.innerWidth - (window.innerWidth * 0.40) : 0;
 
     let touchStartX = 0;
     let touchStartY = 0;
+    
     let isSwipeIgnored = false;
-    let isHorizontalSwipe = false; // Flag nou pentru a bloca decizia pe durata atingerii
+    let isHorizontalSwipeValid = false;
+    let isVerticalScrollLocked = false;
 
     const handleTouchStart = (e: TouchEvent) => {
+      isHorizontalSwipeValid = false;
+      isVerticalScrollLocked = false;
+
       if (hideHamburger) {
         isSwipeIgnored = true;
         return;
       }
 
       const target = e.target as HTMLElement;
-      // Ignorăm swipe-ul pe elemente care au propriul scroll orizontal sau clase specifice
       if (target.closest('.prevent-nav-swipe')) {
         isSwipeIgnored = true;
         return; 
       }
 
       isSwipeIgnored = false;
-      isHorizontalSwipe = false; // Resetăm flag-ul
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (isSwipeIgnored) return;
+      if (isSwipeIgnored || isVerticalScrollLocked) return;
 
       const currentX = e.touches[0].clientX;
       const currentY = e.touches[0].clientY;
@@ -129,58 +119,48 @@ useEffect(() => {
       const diffX = currentX - touchStartX;
       const diffY = currentY - touchStartY;
 
-      // 1. Verificăm direcția DOMINANTĂ.
-      // Dacă mișcarea pe X este mai mare decât pe Y, considerăm că e intenție de Swipe.
-      const isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+      if (Math.abs(diffX) < 15 && Math.abs(diffY) < 15) return;
 
-      // 2. Prag de toleranță (Threshold)
-      // Ignorăm micro-mișcările (tremuratul degetului) sub 10px
-      if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) return;
+      if (!isHorizontalSwipeValid) {
+        if (Math.abs(diffY) > Math.abs(diffX) * 0.8) {
+             isVerticalScrollLocked = true;
+             return;
+        }
+        
+        const isInTriggerZone = isMobileMenuOpen || touchStartX > triggerZoneStart;
+        
+        if (Math.abs(diffX) > Math.abs(diffY) * 2 && isInTriggerZone) {
+             isHorizontalSwipeValid = true;
+        } else {
+             isVerticalScrollLocked = true;
+        }
+      }
 
-      // 3. Logica de blocare a scroll-ului
-      if (isHorizontal) {
-        // Verificăm dacă suntem în zona care permite swipe (marginea dreaptă sau meniul deschis)
-        if (isMobileMenuOpen || touchStartX > triggerZoneStart) {
-             // AICI E FIX-UL: Dacă e clar orizontală mișcarea, omorâm scroll-ul paginii
-             if (e.cancelable) {
-                 e.preventDefault();
-                 isHorizontalSwipe = true; // Marcam că am intrat în mod swipe
-             }
-        }
-      } else {
-        // Dacă mișcarea e verticală (scroll), NU dăm preventDefault, lăsăm pagina să curgă.
-        // Dar dacă am început deja un swipe orizontal valid anterior în același touch event, continuăm să blocăm
-        if (isHorizontalSwipe && e.cancelable) {
-            e.preventDefault();
-        }
+      if (isHorizontalSwipeValid && e.cancelable) {
+         e.preventDefault();
       }
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      if (isSwipeIgnored) return;
+      if (isSwipeIgnored || isVerticalScrollLocked) return;
       
-      // Resetăm flag-ul
-      isHorizontalSwipe = false;
+      if (!isHorizontalSwipeValid) return;
 
       const endX = e.changedTouches[0].clientX;
       const swipeDistance = endX - touchStartX;
 
-      // Swipe Stânga (Deschidere) - Validăm doar dacă distanța e suficientă
       if (
         swipeDistance < -minSwipeDistance && 
-        !isMobileMenuOpen &&
-        touchStartX > triggerZoneStart
+        !isMobileMenuOpen
       ) {
         setIsMobileMenuOpen(true);
       }
 
-      // Swipe Dreapta (Închidere)
       if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
     };
 
-    // 'passive: false' este CRUCIAL pentru a putea folosi e.preventDefault()
     document.addEventListener("touchstart", handleTouchStart, { passive: false });
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd, { passive: false });
@@ -192,7 +172,6 @@ useEffect(() => {
     };
   }, [isMobileMenuOpen, hideHamburger]);
 
-  // Scroll Progress Logic
   useEffect(() => {
     if (isMobileMenuOpen) return;
 
@@ -251,9 +230,6 @@ useEffect(() => {
 
   return (
     <nav className="fixed top-0 left-0 w-full shadow-md z-50">
-      {/* 1. Am adăugat z-50 aici, deși era implicit prin ordinea DOM-ului, 
-             dar ajută la claritate.
-      */}
       <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
@@ -263,7 +239,6 @@ useEffect(() => {
                 className="flex items-center gap-4 group cursor-pointer"
                 onClick={scrollToTop}
               >
-               {/* Logo Content - Neschimbat */}
                 <div className="scene w-10 h-10 flex items-center justify-center">
                   <div className="cube-wrapper group-hover:scale-125 transition-transform duration-500">
                     <div className="cube">
@@ -316,18 +291,14 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* MODIFICARE IMPORTANTĂ:
-               Am adăugat 'relative' aici. Fără 'relative', z-[60] nu funcționează întotdeauna corect
-               când părintele are alte reguli de poziționare, iar overlay-ul fixed (z-40) putea să acopere butonul.
-            */}
             <div className="md:hidden flex items-center relative z-[60]">
               <button
                 onClick={(e) => {
-                    e.stopPropagation(); // Previne bubbling
+                    e.stopPropagation();
                     setIsMobileMenuOpen(!isMobileMenuOpen);
                 }}
                 className={`group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300 ${
-                  hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
+                  hideHamburger ? 'opacity-0 invisible pointer-events-none' : 'opacity-100 visible'
                 }`}
                 aria-label="Toggle menu"
               >
@@ -361,10 +332,6 @@ useEffect(() => {
         ></div>
       </div>
 
-      {/* MODIFICARE:
-         Am adăugat onClick pe containerul principal (overlay) pentru a închide meniul 
-         când dai click pe zona goală (background).
-      */}
       <div
         onClick={() => setIsMobileMenuOpen(false)}
         className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
@@ -385,9 +352,6 @@ useEffect(() => {
         <div className="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-slate-400 opacity-50 select-none"></div>
         <div className="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-slate-400 opacity-50 select-none"></div>
 
-        {/* Folosim stopPropagation aici pentru ca click-ul pe link-uri să fie gestionat de AnimatedLink,
-            nu de overlay-ul de închidere (deși AnimatedLink închide și el meniul, e mai curat așa).
-        */}
         <div 
             className="w-full max-w-sm px-6 space-y-8 relative z-50"
             onClick={(e) => e.stopPropagation()} 
