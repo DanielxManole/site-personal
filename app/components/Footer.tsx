@@ -1,465 +1,118 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import React, { useState } from "react";
+import { useScrollReveal } from "../hooks/useScrollReveal";
+import ContactModal from "./ContactModal";
+import GradientButton from "./GradientButton";
 
-const menuItems = [
-  { id: "despre", label: "DESPRE", sub: "Cine sunt eu?" },
-  { id: "proiecte", label: "PROIECTE", sub: "Portofoliu" },
-  { id: "tehnologii", label: "COMPETENȚE", sub: "Stack Tehnic" },
-  { id: "contact", label: "CONTACT", sub: "Hai să vorbim" },
-];
+export default function Footer() {
+  const { ref, isVisible } = useScrollReveal(0.4);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-function AnimatedLink({
-  href,
-  children,
-  className,
-  onClick,
-}: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const [isClicked, setIsClicked] = useState(false);
-
-  const handleClick = (e: React.MouseEvent) => {
-    // Nu folosim preventDefault aici dacă vrem ca ancora să funcționeze natural,
-    // dar pentru animație și control e ok.
-    
-    // NOTĂ: window.location.href forțează un refresh complet al paginii. 
-    // Dacă ești în Next.js, ideal ar fi să folosești router.push sau comportamentul default al ancorei.
-    // Am lăsat logica ta, dar am asigurat că onClick se execută primul.
-    
-    if (onClick) onClick();
-    
-    setIsClicked(true);
-    setTimeout(() => {
-        setIsClicked(false);
-        // Mutăm navigarea aici sau o lăsăm naturală dacă scoatem e.preventDefault()
-        window.location.href = href; 
-    }, 150);
-    
+  const handleEmailClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    setTimeout(() => {
+      setIsModalOpen(true);
+      localStorage.setItem('modalOpen', 'true');
+      setIsProcessing(false);
+    }, 150);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    localStorage.removeItem('modalOpen');
+    (document.activeElement as HTMLElement)?.blur();
   };
 
   return (
-    <a
-      href={href}
-      onClick={handleClick}
-      className={`${className} transform transition-transform duration-150 ${
-        isClicked ? "scale-95" : "scale-100"
-      }`}
+    <footer
+      id="contact"
+      ref={ref}
+      className="min-h-screen w-full flex flex-col items-center justify-center py-20 px-4 bg-[#e0e5ec]"
     >
-      {children}
-    </a>
-  );
-}
+      <ContactModal isOpen={isModalOpen} onClose={handleClose} />
 
-export default function Navbar() {
-  const [activeSection, setActiveSection] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const [hideHamburger, setHideHamburger] = useState(false);
+      <div
+        className={`
+          max-w-4xl w-full text-center relative z-10
+          transition-all duration-1000 md:duration-500 ease-out transform will-change-transform
+          ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
+        `}
+      >
+        <div className="relative bg-[#e0e5ec] p-10 md:p-14 rounded-3xl border border-white/50 group mx-auto shadow-[15px_15px_30px_#bec3c9,-15px_-15px_30px_rgba(255,255,255,0.5)] transform-gpu">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-700 mb-6 tracking-tight select-none">
+            CONTACT{'\u00A0'}& COLABORARE
+          </h2>
 
-  // Verificare localStorage pentru modal
-  useEffect(() => {
-    const checkModal = () => {
-      // Asigură-te că logica din restul site-ului șterge 'modalOpen' când trebuie
-      setHideHamburger(localStorage.getItem('modalOpen') === 'true');
-    };
-    
-    checkModal();
-    window.addEventListener('storage', checkModal);
-    const interval = setInterval(checkModal, 500); // Mărit intervalul la 500ms pentru performanță
-    
-    return () => {
-      window.removeEventListener('storage', checkModal);
-      clearInterval(interval);
-    };
-  }, []);
+          <div className="text-slate-600 mb-10 max-w-3xl mx-auto font-medium text-lg leading-relaxed select-none">
+            <p className="mb-6">
+              Sunt în căutare de noi{'\u00A0'}oportunități: <br />
+              <strong>Programe{'\u00A0'}de{'\u00A0'}Internship</strong>
+              <br />
+              <strong>Joburi{'\u00A0'}Part{'\u2011'}Time</strong>
+              <br />
+              <strong>Proiecte</strong>
+            </p>
+            <p className="text-slate-600 max-w-lg mx-auto font-medium text-lg leading-relaxed select-none">
+              Aștept cu interes să discutăm detaliile proiectelor sau
+              oportunităților{'\u00A0'}dvs.
+            </p>
+          </div>
 
-  // Blocare scroll body
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
-
-  // Logică Swipe
-  useEffect(() => {
-    const minSwipeDistance = 70; 
-    const triggerZoneStart = typeof window !== 'undefined' ? window.innerWidth - (window.innerWidth * 0.40) : 0;
-
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let isSwipeIgnored = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      // Dacă meniul e deschis, vrem să permitem interacțiunea
-      if (hideHamburger) {
-        isSwipeIgnored = true;
-        return;
-      }
-
-      const target = e.target as HTMLElement;
-      if (target.closest('.prevent-nav-swipe')) {
-        isSwipeIgnored = true;
-        return; 
-      }
-
-      isSwipeIgnored = false;
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (isSwipeIgnored) return;
-
-      const deltaX = e.touches[0].clientX - touchStartX;
-      const deltaY = e.touches[0].clientY - touchStartY;
-
-      // Doar dacă facem swipe orizontal clar
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
-        // Dacă meniul e deschis sau suntem în zona de trigger
-        if (isMobileMenuOpen || touchStartX > triggerZoneStart) {
-             // e.preventDefault(); // Comentat opțional: Uneori asta blochează click-urile pe anumite mobile
-        }
-      }
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (isSwipeIgnored) return
-      
-      const endX = e.changedTouches[0].clientX;
-      const swipeDistance = endX - touchStartX;
-
-      // Swipe Stânga (Deschidere)
-      if (
-        swipeDistance < -minSwipeDistance && 
-        !isMobileMenuOpen &&
-        touchStartX > triggerZoneStart
-      ) {
-        setIsMobileMenuOpen(true);
-      }
-
-      // Swipe Dreapta (Închidere)
-      if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("touchstart", handleTouchStart, { passive: false });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleTouchEnd, { passive: false });
-
-    return () => {
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [isMobileMenuOpen, hideHamburger]); 
-
-  // Scroll Progress Logic
-  useEffect(() => {
-    if (isMobileMenuOpen) return;
-
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (progressBarRef.current) {
-            const totalScroll = window.scrollY || document.documentElement.scrollTop;
-            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-
-            if (windowHeight > 0) {
-              const scrollPercent = totalScroll / windowHeight;
-              const safePercent = Math.min(100, Math.max(0, scrollPercent * 100));
-              progressBarRef.current.style.width = `${safePercent}%`;
-            }
-          }
-        
-          for (const item of menuItems) {
-            const element = document.getElementById(item.id);
-            if (element) {
-              const rect = element.getBoundingClientRect();
-              if (rect.top >= 0 && rect.top <= 500) {
-                setActiveSection(item.id);
-                break;
-              } else if (rect.top < 0 && rect.bottom > 150) {
-                setActiveSection(item.id);
-              }
-            }
-          }
-          if (window.scrollY < 100) setActiveSection("");
-
-          ticking = false;
-        });
-
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-    
-  }, [isMobileMenuOpen]);
-
-  const pathname = usePathname();
-  const isErrorPage = pathname !== "/";
-  const logoHref = isErrorPage ? "/" : "#top";
-
-  const scrollToTop = () => {
-    setIsMobileMenuOpen(false);
-    if (!isErrorPage) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  return (
-    <nav className="fixed top-0 left-0 w-full shadow-md z-50">
-      {/* 1. Am adăugat z-50 aici, deși era implicit prin ordinea DOM-ului, 
-             dar ajută la claritate.
-      */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-          <div className="flex items-center justify-between h-full w-full">
-            <div className="flex-shrink-0 z-50">
-              <AnimatedLink
-                href={logoHref}
-                className="flex items-center gap-4 group cursor-pointer"
-                onClick={scrollToTop}
+          <div className="flex flex-col sm:flex-row justify-center gap-6 select-none">
+            
+            <GradientButton 
+              variant="blue" 
+              onClick={handleEmailClick}
+              disabled={isProcessing}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="currentColor" 
+                className="w-5 h-5 text-white"
               >
-               {/* Logo Content - Neschimbat */}
-                <div className="scene w-10 h-10 flex items-center justify-center">
-                  <div className="cube-wrapper group-hover:scale-125 transition-transform duration-500">
-                    <div className="cube">
-                      <div className="face front"></div>
-                      <div className="face back"></div>
-                      <div className="face right"></div>
-                      <div className="face left"></div>
-                      <div className="face top"></div>
-                      <div className="face bottom"></div>
-                      <div className="nucleu"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-sans text-[20px] font-black text-slate-700 leading-none tracking-tight group-hover:text-blue-600 transition-colors duration-300 tracking-tighter">
-                    ManoleDaniel.cad
-                  </span>
-                  <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
-                      <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
-                      <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z" />
-                    </svg>
-                    Part1
-                  </span>
-                </div>
-              </AnimatedLink>
-            </div>
+                <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+              </svg>
+              Trimite{'\u00A0'}Email
+            </GradientButton>
 
-            <div className="hidden md:block">
-              <div className="hidden md:flex items-baseline ml-auto space-x-4 md:space-x-8">
-                {menuItems.map((item) => (
-                  <AnimatedLink
-                    key={item.id}
-                    href={isErrorPage ? `/#${item.id}` : `#${item.id}`}
-                    className={`
-                      font-sans px-3 py-2 rounded-md text-sm font-bold transition-all
-                      ${
-                        item.id === "contact"
-                          ? "ml-4 px-6 bg-blue-600 text-white shadow-[4px_4px_8px_#a1a6ac,-4px_-4px_8px_rgba(255,255,255,0.5)] hover:bg-blue-700"
-                          : activeSection === item.id
-                          ? "text-blue-600"
-                          : "text-slate-600 hover:text-blue-600"
-                      }
-                    `}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </AnimatedLink>
-                ))}
+            <GradientButton 
+              variant="gray"
+              href="https://www.linkedin.com/in/manoledaniel/"
+              target="_blank"
+            >
+              <div className="flex items-center justify-center gap-0.5">
+                
+                <span className="text-[#0a66c2]">Linked</span>
+                <svg 
+                  className="w-5 h-5 text-[#0a66c2]"
+                  fill="currentColor" 
+                  viewBox="0 0 24 24" 
+                  aria-hidden="true"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
               </div>
-            </div>
+            </GradientButton>
 
-            {/* MODIFICARE IMPORTANTĂ:
-               Am adăugat 'relative' aici. Fără 'relative', z-[60] nu funcționează întotdeauna corect
-               când părintele are alte reguli de poziționare, iar overlay-ul fixed (z-40) putea să acopere butonul.
-            */}
-            <div className="md:hidden flex items-center relative z-[60]">
-              <button
-                onClick={(e) => {
-                    e.stopPropagation(); // Previne bubbling
-                    setIsMobileMenuOpen(!isMobileMenuOpen);
-                }}
-                className={`group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300 ${
-                  hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
-                }`}
-                aria-label="Toggle menu"
-              >
-                <span
-                  className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen ? "rotate-45 translate-y-[9px]" : ""
-                  }`}
-                ></span>
-                <span
-                  className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen
-                      ? "scale-x-0 opacity-0"
-                      : "scale-x-100 opacity-100"
-                  }`}
-                ></span>
-                <span
-                  className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
-                    isMobileMenuOpen
-                      ? "w-6 -rotate-45 -translate-y-[9px]"
-                      : ""
-                  }`}
-                ></span>
-              </button>
-            </div>
+          </div>
+
+          <div className="mt-16 pt-8 border-t border-slate-300 flex flex-col md:flex-row justify-between items-center text-[10px] font-mono text-slate-400 uppercase tracking-widest gap-2 select-none">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              System Status: Online
+            </span>
+            <span>
+              © 2025 [{'\u00A0'}Manole{'\u00A0'}Daniel{'\u00A0'}]. Engineering{'\u00A0'}&{'\u00A0'}Dev.
+            </span>
           </div>
         </div>
-
-        <div
-          ref={progressBarRef}
-          className="absolute bottom-[-1px] left-0 h-[3px] bg-gradient-to-r from-blue-700 to-blue-400 z-50 w-0 will-change-[width]"
-        ></div>
       </div>
-
-      {/* MODIFICARE:
-         Am adăugat onClick pe containerul principal (overlay) pentru a închide meniul 
-         când dai click pe zona goală (background).
-      */}
-      <div
-        onClick={() => setIsMobileMenuOpen(false)}
-        className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
-          isMobileMenuOpen
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "-translate-y-full opacity-0 pointer-events-none"
-        }`}
-      >
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage:
-              "linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        ></div>
-
-        <div className="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-slate-400 opacity-50 select-none"></div>
-        <div className="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-slate-400 opacity-50 select-none"></div>
-
-        {/* Folosim stopPropagation aici pentru ca click-ul pe link-uri să fie gestionat de AnimatedLink,
-            nu de overlay-ul de închidere (deși AnimatedLink închide și el meniul, e mai curat așa).
-        */}
-        <div 
-            className="w-full max-w-sm px-6 space-y-8 relative z-50"
-            onClick={(e) => e.stopPropagation()} 
-        >
-          {menuItems.map((item, index) => (
-            <AnimatedLink
-              key={item.id}
-              href={isErrorPage ? `/#${item.id}` : `#${item.id}`}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`group block relative w-full transition-all duration-500 ease-out transform ${
-                isMobileMenuOpen
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-10 opacity-0"
-              }`}
-            >
-              <div className="flex items-baseline justify-between group-active:border-blue-500 transition-colors">
-                <span
-                  className={`font-mono text-sm font-bold transition-colors ${
-                    activeSection === item.id
-                      ? "text-blue-500"
-                      : "text-slate-400 group-hover:text-blue-500"
-                  }`}
-                >
-                  0{index + 1}
-                </span>
-                <span
-                  className={`font-sans text-4xl font-black tracking-tighter transition-colors ${
-                    activeSection === item.id
-                      ? "text-blue-600"
-                      : "text-slate-800 group-hover:text-blue-600"
-                  }`}
-                >
-                  {item.label}
-                </span>
-              </div>
-              <div className="flex justify-end mt-1 overflow-hidden">
-                <span className="font-mono text-xs text-slate-500 uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  {item.sub}
-                </span>
-              </div>
-            </AnimatedLink>
-          ))}
-        </div>
-        <div className="absolute bottom-15 text-center font-bold">
-          <p className="font-mono text-xs text-slate-600 tracking-widest select-none">
-            LOC_COORDS:{" "}
-            <span className="text-blue-500 font-bold select-none">
-              44.3678° N, 26.1440° E
-            </span>
-          </p>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .scene {
-          perspective: 800px;
-        }
-        .cube {
-          width: 30px;
-          height: 30px;
-          position: relative;
-          transform-style: preserve-3d;
-          transform: rotateX(-20deg) rotateY(-20deg);
-          animation: spin 10s infinite linear;
-        }
-        .face {
-          position: absolute;
-          width: 30px;
-          height: 30px;
-          border: 2px solid #314158;
-          background: rgba(255, 255, 255, 0.05);
-        }
-        .front {
-          transform: translateZ(15px);
-        }
-        .back {
-          transform: rotateY(180deg) translateZ(15px);
-        }
-        .right {
-          transform: rotateY(90deg) translateZ(15px);
-        }
-        .left {
-          transform: rotateY(-90deg) translateZ(15px);
-        }
-        .top {
-          transform: rotateX(90deg) translateZ(15px);
-        }
-        .bottom {
-          transform: rotateX(-90deg) translateZ(15px);
-        }
-        @keyframes spin {
-          0% {
-            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-          }
-          100% {
-            transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
-          }
-        }
-      `}</style>
-    </nav>
+    </footer>
   );
 }
