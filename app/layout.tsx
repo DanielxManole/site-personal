@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ConsoleMsg from "./components/ConsoleMsg";
@@ -25,10 +25,14 @@ export const metadata: Metadata = {
   description: "Portofoliu personal",
 };
 
-export const viewport = {
-  themeColor: "#e0e5ec",
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#e0e5ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#e0e5ec" },
+  ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
