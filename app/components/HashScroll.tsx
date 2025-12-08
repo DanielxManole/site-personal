@@ -9,21 +9,18 @@ export default function HashScroll() {
       if (hash) {
         const id = hash.replace("#", "");
         const element = document.getElementById(id);
+        
         if (element) {
-          const headerOffset = 80;
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          const y = element.getBoundingClientRect().top + window.scrollY;
 
           window.scrollTo({
-            top: offsetPosition,
+            top: y,
             behavior: "instant"
           });
         }
       }
     };
-    const timer = setTimeout(() => {
-       scrollToHash();
-    }, 100);
+    const timer = setTimeout(scrollToHash, 50);
 
     return () => clearTimeout(timer);
   }, []);
