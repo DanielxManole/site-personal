@@ -9,28 +9,49 @@ interface ContactModalProps {
   onClose: () => void;
 }
 
-// Variantele de animație
-const modalVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
-    scale: 0.9, 
-    y: 20 
+// 1. Variantele pentru DESKTOP (Animația originală)
+const desktopModalVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.9,
+    y: 20
   },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
+  visible: {
+    opacity: 1,
+    scale: 1,
     y: 0,
-    transition: { 
+    transition: {
       type: "spring",
-      damping: 25, 
-      stiffness: 300 
+      damping: 25,
+      stiffness: 300
     }
   },
-  exit: { 
-    opacity: 0, 
-    scale: 0.95, 
+  exit: {
+    opacity: 0,
+    scale: 0.95,
     y: 20,
     transition: { duration: 0.2 }
+  }
+};
+
+// 2. Variantele pentru MOBIL (Fără animație de intrare, doar exit)
+const mobileModalVariants: Variants = {
+  hidden: {
+    opacity: 1, // Pornim direct vizibil
+    scale: 1,
+    y: 0
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { duration: 0 } // Durata 0 pentru a fi instant
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: 20,
+    transition: { duration: 0.2 } // Păstrăm animația de ieșire
   }
 };
 
@@ -47,92 +68,52 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [formData, setFormData] = useState({ nume: "", email: "", mesaj: "" });
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
+  
+  // State nou pentru detectarea mobilului
+  const [isMobile, setIsMobile] = useState(false);
+  
   const pathname = usePathname();
 
-<AnimatePresence>
-  {isOpen && (
-    <motion.div
-      key="modal-wrapper"
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      variants={modalVariants}
-      className="fixed inset-0 z-[100] flex items-center justify-center px-4"
-      style={{ pointerEvents: 'auto' }}
-      onAnimationComplete={() => {
-        // Abia după ce animația e gata, blochează scroll-ul pe body
-        const isMobile = window.innerWidth <= 767;
-        if (isMobile) {
-          const scrollY = window.scrollY;
-          document.body.style.position = 'fixed';
-          document.body.style.top = `-${scrollY}px`;
-          document.body.style.width = '100%';
-        } else {
-          document.body.style.overflow = 'hidden';
-        }
-      }}
-    >
-      {/* backdrop */}
-      <motion.div
-        key="backdrop"
-        variants={backdropVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="absolute inset-0 bg-slate-900/20"
-        onClick={onClose}
-      />
-
-      {/* modal content */}
-      <motion.div
-        key="modal-content"
-        variants={modalVariants}
-        className="relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl shadow-lg"
-      >
-        {/* ... restul formularului ... */}
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+  // Detectăm dacă suntem pe mobil
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 767);
+    checkMobile(); // Verificăm la montare
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Reset la schimbarea rutei
   useEffect(() => {
     if (isOpen) onClose();
   }, [pathname]);
 
-  // ---------------------------------------------------------
-  // 1. LOGICA TA ORIGINALĂ DE SCROLL LOCK (RESTAURATĂ)
-  // ---------------------------------------------------------
+  // Scroll Lock Logic
   useEffect(() => {
-  if (!isOpen) return;
-
-  const isMobile = window.innerWidth <= 767;
-
-  if (isMobile) {
-    // amânăm scroll-lock-ul cu requestAnimationFrame pentru a permite render-ul initial
-    requestAnimationFrame(() => {
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-    });
-  } else {
-    document.body.style.overflow = 'hidden';
-  }
-
-  return () => {
-    const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    document.body.style.overflow = '';
+    if (!isOpen) return;
 
     if (isMobile) {
-      window.scrollTo({ top: savedScroll, behavior: 'instant' });
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+      });
+    } else {
+      document.body.style.overflow = 'hidden';
     }
-  };
-}, [isOpen]);
 
+    return () => {
+      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+
+      if (isMobile) {
+        window.scrollTo({ top: savedScroll, behavior: 'instant' });
+      }
+    };
+  }, [isOpen, isMobile]); // Am adăugat isMobile la dependențe
 
   // Resetare stare după închidere
   useEffect(() => {
@@ -142,7 +123,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setErrors({});
         setFormData({ nume: "", email: "", mesaj: "" });
         setCountdown(3);
-      }, 500); // Un pic mai mult timp să fim siguri că animația e gata
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -163,7 +144,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Countdown
+  // Countdown logic
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -173,8 +154,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-
-  // --- RESTUL FUNCȚIILOR (FORM HANDLERS) RĂMÂN NESCHIMBATE ---
+  // --- FORM HANDLERS ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;
@@ -223,12 +203,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Pe mobil, scrollIntoView poate cauza glitch-uri uneori, dar îl lăsăm condiționat
     if (window.innerWidth > 767) {
-    setTimeout(() => {
-      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 300);
-    return;
-  }
+      setTimeout(() => {
+        e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+      return;
+    }
   };
 
   const sendEmail = async (e: React.FormEvent) => {
@@ -246,16 +227,16 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     };
 
     try {
-        const response = await fetch("https://api.web3forms.com/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify(dataToSend),
-        });
-        const result = await response.json();
-        if (result.success) setStatus("SUCCESS");
-        else setStatus("ERROR");
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(dataToSend),
+      });
+      const result = await response.json();
+      if (result.success) setStatus("SUCCESS");
+      else setStatus("ERROR");
     } catch (error) {
-        setStatus("ERROR");
+      setStatus("ERROR");
     }
   };
 
@@ -277,19 +258,21 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 will-change-transform">
+          {/* Backdrop */}
           <motion.div
             key="backdrop"
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-slate-900/20 bg-slate-900/20"
+            className="absolute inset-0 bg-slate-900/20"
             onClick={onClose}
           />
 
+          {/* Modal Content - Aici aplicăm logica condițională pentru variante */}
           <motion.div
             key="modal-content"
-            variants={modalVariants}
+            variants={isMobile ? mobileModalVariants : desktopModalVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
