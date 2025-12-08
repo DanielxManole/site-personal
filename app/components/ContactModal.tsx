@@ -63,19 +63,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  // 4. SCROLL LOCK (Doar pe Body)
+  // 4. SCROLL LOCK
+  // Am scos 'touch-action: none' pentru că bloca ajustarea nativă a tastaturii
   useEffect(() => {
     if (shouldRender) {
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none'; 
     } else {
       document.body.style.overflow = '';
-      document.body.style.touchAction = '';
     }
 
     return () => {
       document.body.style.overflow = '';
-      document.body.style.touchAction = '';
     };
   }, [shouldRender]);
 
@@ -214,22 +212,27 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     pulseHigh ? "opacity-100" : "opacity-40"
   }`;
 
+  // IMPORTANT: Am scos 'transition-all' de aici. Input-urile nu trebuie să aibă tranziție pe layout.
+  // Am lăsat doar 'transition-colors' sau specific.
   const inputClass = (hasError: boolean) =>
     `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
      shadow-[inset_3px_3px_6px_#bec3c9] 
      focus:shadow-[inset_4px_4px_8px_#b1b5b9]
-     transition-all placeholder:text-slate-400 
+     placeholder:text-slate-400 
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
   return (
-    // SCHIMBARE: Am șters h-[100dvh] și am pus h-full. 
-    // Aceasta previne redimensionarea containerului când apare tastatura.
-    <div className="fixed inset-0 z-[100] overflow-y-auto h-full w-screen overscroll-contain">
+    // MODIFICARE MAJORĂ STRUCTURĂ:
+    // 1. 'fixed inset-0' asigură că ocupă tot ecranul.
+    // 2. 'z-[100]' e peste tot.
+    // 3. 'overflow-y-auto' permite scroll.
+    // 4. NU folosim flex-center pe containerul mare. Folosim 'min-h-full' și 'flex' doar pentru a gestiona spațiul.
+    <div className="fixed inset-0 z-[100] overflow-y-auto">
       
-      {/* Container Flex: items-start pe mobil (ca să nu sară la mijloc), items-center pe desktop */}
-      <div className="flex min-h-full w-full items-start justify-center p-4 pt-24 md:items-center md:pt-4">
+      {/* Wrapper flexibil care se asigură că modalul e centrat doar când e loc */}
+      <div className="flex min-h-full items-center justify-center p-4">
         
-        {/* BACKDROP */}
+        {/* BACKDROP - Fixed în spate, nu se mișcă la scroll */}
         <div
           className={`fixed inset-0 bg-slate-900/20 transition-opacity duration-300 ${
             isVisible ? "opacity-100" : "opacity-0"
@@ -238,12 +241,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         />
 
         {/* MODAL */}
+        {/* IMPORTANT: Am înlocuit 'transition-all' cu 'transition-opacity transition-transform'. 
+            Asta previne glitch-ul când tastatura schimbă dimensiunea ecranului. */}
         <div
           className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
           shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
           border border-white/50 
-          transform transition-all duration-300 mb-20
-          ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
+          transition-opacity transition-transform duration-300 
+          ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}
         >
           <button
             onClick={() => {
@@ -330,32 +335,35 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 </div>
               ))}
 
-              <button
-                type="submit"
-                disabled={status === "SENDING"}
-                onClick={() => {
-                  setEmailBtnClicked(true);
-                  setTimeout(() => setEmailBtnClicked(false), 150);
-                }}
-                className={`
-                  mobile-submit-gradient
-                  w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
-                  shadow-[6px_6px_12px_#bec3c9]
-                  transition-all flex justify-center items-center gap-2
-                  md:active:scale-[0.95]
-                  md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
-                  ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
-                `}
-              >
-                {status === "SENDING" ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    SE TRIMITE...
-                  </>
-                ) : (
-                  "TRIMITE"
-                )}
-              </button>
+              {/* Added padding-bottom to ensure keyboard doesn't hide the button on very small screens */}
+              <div className="pb-2">
+                <button
+                  type="submit"
+                  disabled={status === "SENDING"}
+                  onClick={() => {
+                    setEmailBtnClicked(true);
+                    setTimeout(() => setEmailBtnClicked(false), 150);
+                  }}
+                  className={`
+                    mobile-submit-gradient
+                    w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
+                    shadow-[6px_6px_12px_#bec3c9]
+                    transition-all flex justify-center items-center gap-2
+                    md:active:scale-[0.95]
+                    md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
+                    ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
+                  `}
+                >
+                  {status === "SENDING" ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      SE TRIMITE...
+                    </>
+                  ) : (
+                    "TRIMITE"
+                  )}
+                </button>
+              </div>
 
               {status === "ERROR" && (
                 <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none">
@@ -381,11 +389,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         }
 
         @media (max-width: 767px) {
-          /* Aceasta este critică: previne zoom-ul și ajustarea automată a fontului pe iOS */
           input, textarea {
             font-size: 16px !important;
           }
 
+          /* Eliminăm transition-all pe mobil pentru a preveni glitch-uri de layout */
           .mobile-submit-gradient {
             background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%) !important;
             background-size: 200% auto !important;
@@ -393,11 +401,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             color: white !important;
             border: none !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
-            transition: background-position 0.5s ease !important;
+            transition: background-position 0.5s ease, transform 0.1s ease !important; /* Specific transitions only */
             transform: none !important;
             -webkit-tap-highlight-color: transparent;
           }
-
+          /* ... restul stilurilor ... */
           .mobile-submit-gradient:active {
             background-position: right center !important;
             transform: none !important;
