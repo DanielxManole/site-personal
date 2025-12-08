@@ -238,9 +238,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (window.innerWidth > 767) {
     setTimeout(() => {
       e.target.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 300);
+    return;
+  }
   };
 
   const sendEmail = async (e: React.FormEvent) => {
