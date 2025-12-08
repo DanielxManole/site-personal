@@ -19,27 +19,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://manoledaniel.vercel.app"),
+  // ... metadata-ul tău ...
   title: "Manole Daniel | Inginerie & Robotică",
-  description: "Portofoliu personal - Student la Inginerie Industrială și Robotică (UNSTPB).",
-  keywords: ["Manole Daniel", "Inginerie", "Robotică", "CAD", "CATIA", "Portofoliu", "Next.js", "Student"],
-  authors: [{ name: "Manole Daniel" }],
-  openGraph: {
-    type: "website",
-    locale: "ro_RO",
-    url: "https://manoledaniel.vercel.app/",
-    title: "Manole Daniel | Portfolio",
-    description: "Vezi proiectele mele de CAD, Robotică și Software.",
-    siteName: "Manole Daniel Portfolio",
-    images: [
-       {
-         url: '/opengraph-image.png',
-         width: 1200,
-         height: 630,
-         alt: 'Manole Daniel Portfolio Preview',
-       },
-     ],
-  },
+  description: "Portofoliu personal",
 };
 
 export const viewport = {
@@ -55,14 +37,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ro" className="bg-[#e0e5ec]"> 
-      
-      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased opacity-0 fade-in-on-load`}>
+      {/* 1. SCOATE 'opacity-0' și 'fade-in-on-load' DE PE BODY !!!
+         Asta repara bug-ul vizual cu Navbar-ul.
+      */}
+      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased`}>
+        
         <HashScroll />
         <ConsoleMsg />
         <CADCursor />
+        
+        {/* Navbar-ul stă "liber" în body, neafectat de animații */}
         <Navbar />
+        
         <GlobalPointerLock />
-        {children}
+
+        {/* 2. Mutăm animația aici, doar pe conținutul paginii.
+           Astfel, pagina face fade-in, dar Navbar-ul rămâne țeapăn.
+        */}
+        <div className="opacity-0 fade-in-on-load">
+            {children}
+        </div>
+
       </body>
     </html>
   );
