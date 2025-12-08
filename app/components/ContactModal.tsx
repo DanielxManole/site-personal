@@ -47,8 +47,53 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [formData, setFormData] = useState({ nume: "", email: "", mesaj: "" });
   const [pulseHigh, setPulseHigh] = useState(true);
   const [countdown, setCountdown] = useState(3);
-
   const pathname = usePathname();
+
+<AnimatePresence>
+  {isOpen && (
+    <motion.div
+      key="modal-wrapper"
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={modalVariants}
+      className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+      style={{ pointerEvents: 'auto' }}
+      onAnimationComplete={() => {
+        // Abia după ce animația e gata, blochează scroll-ul pe body
+        const isMobile = window.innerWidth <= 767;
+        if (isMobile) {
+          const scrollY = window.scrollY;
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${scrollY}px`;
+          document.body.style.width = '100%';
+        } else {
+          document.body.style.overflow = 'hidden';
+        }
+      }}
+    >
+      {/* backdrop */}
+      <motion.div
+        key="backdrop"
+        variants={backdropVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="absolute inset-0 bg-slate-900/20"
+        onClick={onClose}
+      />
+
+      {/* modal content */}
+      <motion.div
+        key="modal-content"
+        variants={modalVariants}
+        className="relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl shadow-lg"
+      >
+        {/* ... restul formularului ... */}
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
   // Reset la schimbarea rutei
   useEffect(() => {
@@ -59,94 +104,34 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   // 1. LOGICA TA ORIGINALĂ DE SCROLL LOCK (RESTAURATĂ)
   // ---------------------------------------------------------
   useEffect(() => {
-    if (!isOpen) return;
+  if (!isOpen) return;
 
-    // Setăm flag-ul în localStorage (din codul tău original)
-    localStorage.setItem('modalOpen', 'true');
-    window.dispatchEvent(new Event("storage"));
+  const isMobile = window.innerWidth <= 767;
 
-    const isMobile = window.innerWidth <= 767;
-    
-    // Logica critică pentru Mobile Safari / Scroll
-    if (isMobile) {
+  if (isMobile) {
+    // amânăm scroll-lock-ul cu requestAnimationFrame pentru a permite render-ul initial
+    requestAnimationFrame(() => {
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-    } else {
-      // Fallback pentru desktop
-      document.body.style.overflow = 'hidden';
+    });
+  } else {
+    document.body.style.overflow = 'hidden';
+  }
+
+  return () => {
+    const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.style.overflow = '';
+
+    if (isMobile) {
+      window.scrollTo({ top: savedScroll, behavior: 'instant' });
     }
-    
-
-    // CLEANUP FUNCTION - Se execută DOAR când componenta dispare complet din DOM
-    // (adică după ce se termină animația de Exit din Framer Motion)
-    return () => {
-      // Executăm cleanup doar dacă body a fost modificat
-      const isBodyFixed = document.body.style.position === 'fixed';
-      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-
-      // Resetăm tot
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-
-      // Dacă am fost pe mobil și aveam scroll salvat, sărim înapoi acolo
-      if (isBodyFixed) {
-        window.scrollTo({
-          top: savedScroll,
-          behavior: 'instant'
-        });
-      }
-
-      if (!isOpen) {
-        localStorage.setItem('modalOpen', 'false');
-        window.dispatchEvent(new Event("storage"));
-      }
-    };
-  }, [isOpen]);
-  // Notă: Chiar dacă isOpen se schimbă în false, AnimatePresence ține componenta
-  // montată până la finalul animației, deci cleanup-ul rulează la momentul perfect.
-
-  // ---------------------------------------------------------
-  // 2. LOGICA HASH CHANGE & LINK CLICK (RESTAURATĂ)
-  // ---------------------------------------------------------
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleHashChange = () => {
-        // Logica ta pentru hash change
-        const isMobile = window.innerWidth <= 767;
-        if (isMobile) {
-            const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-            // Dacă e nevoie să scrollezi la hash, browserul o va face natural după ce scoatem fixed
-        }
-        onClose();
-    };
-
-    const handleGlobalLinkClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest("a");
-      if (target) {
-        const href = target.getAttribute("href");
-        if (href && (href.startsWith("#") || href.includes("/#"))) {
-          setTimeout(() => onClose(), 10);
-        }
-      }
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    window.addEventListener("click", handleGlobalLinkClick, true);
-
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-      window.removeEventListener("click", handleGlobalLinkClick, true);
-    };
-  }, [isOpen, onClose]);
+  };
+}, [isOpen]);
 
 
   // Resetare stare după închidere
