@@ -24,11 +24,23 @@ function AnimatedLink({
   const [isClicked, setIsClicked] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 150);
+    // Nu folosim preventDefault aici dacă vrem ca ancora să funcționeze natural,
+    // dar pentru animație și control e ok.
+    
+    // NOTĂ: window.location.href forțează un refresh complet al paginii. 
+    // Dacă ești în Next.js, ideal ar fi să folosești router.push sau comportamentul default al ancorei.
+    // Am lăsat logica ta, dar am asigurat că onClick se execută primul.
+    
     if (onClick) onClick();
-    window.location.href = href;
+    
+    setIsClicked(true);
+    setTimeout(() => {
+        setIsClicked(false);
+        // Mutăm navigarea aici sau o lăsăm naturală dacă scoatem e.preventDefault()
+        window.location.href = href; 
+    }, 150);
+    
+    e.preventDefault();
   };
 
   return (
@@ -50,14 +62,16 @@ export default function Navbar() {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [hideHamburger, setHideHamburger] = useState(false);
 
+  // Verificare localStorage pentru modal
   useEffect(() => {
     const checkModal = () => {
+      // Asigură-te că logica din restul site-ului șterge 'modalOpen' când trebuie
       setHideHamburger(localStorage.getItem('modalOpen') === 'true');
     };
     
     checkModal();
     window.addEventListener('storage', checkModal);
-    const interval = setInterval(checkModal, 100);
+    const interval = setInterval(checkModal, 500); // Mărit intervalul la 500ms pentru performanță
     
     return () => {
       window.removeEventListener('storage', checkModal);
@@ -65,28 +79,30 @@ export default function Navbar() {
     };
   }, []);
 
+  // Blocare scroll body
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-
     return () => {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen]);
 
+  // Logică Swipe
   useEffect(() => {
     const minSwipeDistance = 70; 
-    const triggerZoneStart = window.innerWidth - (window.innerWidth * 0.40);
+    const triggerZoneStart = typeof window !== 'undefined' ? window.innerWidth - (window.innerWidth * 0.40) : 0;
 
     let touchStartX = 0;
     let touchStartY = 0;
     let isSwipeIgnored = false;
 
     const handleTouchStart = (e: TouchEvent) => {
-      if (document.body.style.overflow === 'hidden' || hideHamburger) {
+      // Dacă meniul e deschis, vrem să permitem interacțiunea
+      if (hideHamburger) {
         isSwipeIgnored = true;
         return;
       }
@@ -108,9 +124,11 @@ export default function Navbar() {
       const deltaX = e.touches[0].clientX - touchStartX;
       const deltaY = e.touches[0].clientY - touchStartY;
 
+      // Doar dacă facem swipe orizontal clar
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        // Dacă meniul e deschis sau suntem în zona de trigger
         if (isMobileMenuOpen || touchStartX > triggerZoneStart) {
-             e.preventDefault();
+             // e.preventDefault(); // Comentat opțional: Uneori asta blochează click-urile pe anumite mobile
         }
       }
     };
@@ -121,6 +139,7 @@ export default function Navbar() {
       const endX = e.changedTouches[0].clientX;
       const swipeDistance = endX - touchStartX;
 
+      // Swipe Stânga (Deschidere)
       if (
         swipeDistance < -minSwipeDistance && 
         !isMobileMenuOpen &&
@@ -129,6 +148,7 @@ export default function Navbar() {
         setIsMobileMenuOpen(true);
       }
 
+      // Swipe Dreapta (Închidere)
       if (swipeDistance > minSwipeDistance && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
@@ -145,6 +165,7 @@ export default function Navbar() {
     };
   }, [isMobileMenuOpen, hideHamburger]); 
 
+  // Scroll Progress Logic
   useEffect(() => {
     if (isMobileMenuOpen) return;
 
@@ -154,18 +175,12 @@ export default function Navbar() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           if (progressBarRef.current) {
-            const totalScroll =
-              window.scrollY || document.documentElement.scrollTop;
-            const windowHeight =
-              document.documentElement.scrollHeight -
-              document.documentElement.clientHeight;
+            const totalScroll = window.scrollY || document.documentElement.scrollTop;
+            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
             if (windowHeight > 0) {
               const scrollPercent = totalScroll / windowHeight;
-              const safePercent = Math.min(
-                100,
-                Math.max(0, scrollPercent * 100)
-              );
+              const safePercent = Math.min(100, Math.max(0, scrollPercent * 100));
               progressBarRef.current.style.width = `${safePercent}%`;
             }
           }
@@ -202,14 +217,16 @@ export default function Navbar() {
 
   const scrollToTop = () => {
     setIsMobileMenuOpen(false);
-    if (isErrorPage) {
-    } else {
+    if (!isErrorPage) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow-md h-[80px]">
+    <nav className="fixed top-0 left-0 w-full shadow-md z-50">
+      {/* 1. Am adăugat z-50 aici, deși era implicit prin ordinea DOM-ului, 
+             dar ajută la claritate.
+      */}
       <div className="absolute top-0 left-0 right-0 h-20 bg-[#e0e5ec]/90 backdrop-blur-md border-b border-slate-300 z-50 transition-all duration-300 will-change-transform">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex items-center justify-between h-full w-full">
@@ -219,6 +236,7 @@ export default function Navbar() {
                 className="flex items-center gap-4 group cursor-pointer"
                 onClick={scrollToTop}
               >
+               {/* Logo Content - Neschimbat */}
                 <div className="scene w-10 h-10 flex items-center justify-center">
                   <div className="cube-wrapper group-hover:scale-125 transition-transform duration-500">
                     <div className="cube">
@@ -237,12 +255,7 @@ export default function Navbar() {
                     ManoleDaniel.cad
                   </span>
                   <span className="font-mono text-[14px] text-slate-400 leading-none mt-1 group-hover:text-blue-400 transition-colors duration-300 flex items-center gap-1 tracking-tighter">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-4 h-4 text-blue-500"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-blue-500">
                       <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
                       <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z" />
                     </svg>
@@ -276,13 +289,21 @@ export default function Navbar() {
               </div>
             </div>
 
-            <div className="md:hidden flex items-center z-[60]">
+            {/* MODIFICARE IMPORTANTĂ:
+               Am adăugat 'relative' aici. Fără 'relative', z-[60] nu funcționează întotdeauna corect
+               când părintele are alte reguli de poziționare, iar overlay-ul fixed (z-40) putea să acopere butonul.
+            */}
+            <div className="md:hidden flex items-center relative z-[60]">
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={(e) => {
+                    e.stopPropagation(); // Previne bubbling
+                    setIsMobileMenuOpen(!isMobileMenuOpen);
+                }}
                 className={`group relative w-12 h-12 rounded-xl bg-[#e0e5ec] flex flex-col justify-center items-center gap-[6px] shadow-[3px_3px_6px_#bec3c9,-3px_-3px_6px_white] active:shadow-[inset_3px_3px_6px_#bec3c9,inset_-3px_-3px_6px_white] transition-all duration-300 ${
-                    hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
-                  }`}
-                >
+                  hideHamburger ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100'
+                }`}
+                aria-label="Toggle menu"
+              >
                 <span
                   className={`w-6 h-[3px] bg-slate-800 rounded-full transition-all duration-300 ease-in-out ${
                     isMobileMenuOpen ? "rotate-45 translate-y-[9px]" : ""
@@ -313,11 +334,16 @@ export default function Navbar() {
         ></div>
       </div>
 
+      {/* MODIFICARE:
+         Am adăugat onClick pe containerul principal (overlay) pentru a închide meniul 
+         când dai click pe zona goală (background).
+      */}
       <div
+        onClick={() => setIsMobileMenuOpen(false)}
         className={`md:hidden fixed inset-0 z-40 bg-[#e0e5ec] flex flex-col justify-center items-center transition-all duration-500 cubic-bezier(0.77, 0, 0.175, 1) ${
           isMobileMenuOpen
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0"
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-full opacity-0 pointer-events-none"
         }`}
       >
         <div
@@ -332,7 +358,13 @@ export default function Navbar() {
         <div className="absolute top-24 left-6 w-16 h-16 border-l-2 border-t-2 border-slate-400 opacity-50 select-none"></div>
         <div className="absolute bottom-6 right-6 w-16 h-16 border-r-2 border-b-2 border-slate-400 opacity-50 select-none"></div>
 
-        <div className="w-full max-w-sm px-6 space-y-8 relative z-50">
+        {/* Folosim stopPropagation aici pentru ca click-ul pe link-uri să fie gestionat de AnimatedLink,
+            nu de overlay-ul de închidere (deși AnimatedLink închide și el meniul, e mai curat așa).
+        */}
+        <div 
+            className="w-full max-w-sm px-6 space-y-8 relative z-50"
+            onClick={(e) => e.stopPropagation()} 
+        >
           {menuItems.map((item, index) => (
             <AnimatedLink
               key={item.id}
@@ -375,7 +407,7 @@ export default function Navbar() {
         <div className="absolute bottom-15 text-center font-bold">
           <p className="font-mono text-xs text-slate-600 tracking-widest select-none">
             LOC_COORDS:{" "}
-            <span className="text-blue-500 font-bold font-bold select-none">
+            <span className="text-blue-500 font-bold select-none">
               44.3678° N, 26.1440° E
             </span>
           </p>
