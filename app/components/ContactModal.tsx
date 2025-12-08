@@ -63,29 +63,18 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  // 4. FIX FINAL PENTRU SCROLL (FĂRĂ SALT LA ÎNCEPUT)
+  // 4. SCROLL LOCK (Doar pe Body)
   useEffect(() => {
     if (shouldRender) {
-      // SALVĂM POZIȚIA CURENTĂ (pentru siguranță maximă)
-      const scrollY = window.scrollY;
-      
-      // Aplicăm stilurile DOAR pe body, nu pe documentElement (html)
       document.body.style.overflow = 'hidden';
-      document.body.style.height = '100dvh'; // Fixează înălțimea vizuală
-      document.body.style.touchAction = 'none'; // Previne scroll-ul pe fundal pe mobil
-      
-      // Opțional: Dacă totuși sare, putem forța revenirea (dar de obicei nu mai e nevoie)
-      // window.scrollTo(0, scrollY);
+      document.body.style.touchAction = 'none'; 
     } else {
-      // Resetăm
       document.body.style.overflow = '';
-      document.body.style.height = '';
       document.body.style.touchAction = '';
     }
 
     return () => {
       document.body.style.overflow = '';
-      document.body.style.height = '';
       document.body.style.touchAction = '';
     };
   }, [shouldRender]);
@@ -233,9 +222,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
   return (
-    // Overscroll-contain pe containerul principal e cheia secundară
-    <div className="fixed inset-0 z-[100] overflow-y-auto h-[100dvh] w-screen overscroll-contain">
+    // SCHIMBARE: Am șters h-[100dvh] și am pus h-full. 
+    // Aceasta previne redimensionarea containerului când apare tastatura.
+    <div className="fixed inset-0 z-[100] overflow-y-auto h-full w-screen overscroll-contain">
       
+      {/* Container Flex: items-start pe mobil (ca să nu sară la mijloc), items-center pe desktop */}
       <div className="flex min-h-full w-full items-start justify-center p-4 pt-24 md:items-center md:pt-4">
         
         {/* BACKDROP */}
@@ -251,7 +242,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
           className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
           shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
           border border-white/50 
-          transform transition-all duration-300 mb-10
+          transform transition-all duration-300 mb-20
           ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
         >
           <button
@@ -390,6 +381,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         }
 
         @media (max-width: 767px) {
+          /* Aceasta este critică: previne zoom-ul și ajustarea automată a fontului pe iOS */
           input, textarea {
             font-size: 16px !important;
           }
