@@ -23,64 +23,60 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
   const pathname = usePathname();
+
+  // Reset la schimbarea rutei
   useEffect(() => {
     if (isOpen) {
       onClose();
     }
   }, [pathname]);
-  
-useEffect(() => {
-  const handleHashChange = () => {
-    if (isOpen) {
-      const isMobile = window.innerWidth <= 767;
-      if (isMobile) {
-        const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-      }
-      onClose();
-    }
-  };
 
-  window.addEventListener("hashchange", handleHashChange);
-  return () => window.removeEventListener("hashchange", handleHashChange);
-}, [isOpen, onClose]);
-
-
+  // Hash change logic
   useEffect(() => {
-  if (isOpen) {
-    localStorage.setItem('modalOpen', 'true');
+    const handleHashChange = () => {
+      if (isOpen) {
+        const isMobile = window.innerWidth <= 767;
+        if (isMobile) {
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.width = '';
+        }
+        onClose();
+      }
+    };
 
-    window.dispatchEvent(new Event("storage")); 
-  } else {
-    localStorage.setItem('modalOpen', 'false');
-    window.dispatchEvent(new Event("storage"));
-  }
-}, [isOpen]);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [isOpen, onClose]);
 
+  // LocalStorage event
+  useEffect(() => {
+    if (isOpen) {
+      localStorage.setItem('modalOpen', 'true');
+      window.dispatchEvent(new Event("storage"));
+    } else {
+      localStorage.setItem('modalOpen', 'false');
+      window.dispatchEvent(new Event("storage"));
+    }
+  }, [isOpen]);
 
+  // Close on link click
   useEffect(() => {
     if (!isOpen) return;
-
     const handleGlobalLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest("a");
-      
       if (target) {
         const href = target.getAttribute("href");
         if (href && (href.startsWith("#") || href.includes("/#"))) {
-           setTimeout(() => onClose(), 10);
+          setTimeout(() => onClose(), 10);
         }
       }
     };
-
     window.addEventListener("click", handleGlobalLinkClick, true);
-
-    return () => {
-      window.removeEventListener("click", handleGlobalLinkClick, true);
-    };
+    return () => window.removeEventListener("click", handleGlobalLinkClick, true);
   }, [isOpen, onClose]);
 
+  // Animation logic
   useEffect(() => {
     let domTimer: NodeJS.Timeout;
     let animationFrame: number;
@@ -105,26 +101,22 @@ useEffect(() => {
       document.body.classList.remove("modal-open-neumorphism");
     };
   }, [isOpen]);
-  
-useEffect(() => {
-  if (showModal) {
-    // Blocăm scroll-ul simplu. Nu mai cauzează sărituri vizuale.
-    document.body.style.overflow = 'hidden';
-    // Opțional: prevent bounce pe iOS
-    document.body.style.overscrollBehavior = 'none'; 
-  } else {
-    // Curățăm stilurile
-    document.body.style.overflow = '';
-    document.body.style.overscrollBehavior = '';
-  }
 
-  return () => {
-    document.body.style.overflow = '';
-    document.body.style.overscrollBehavior = '';
-  };
-}, [showModal]);
+  // Body lock
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+      // Pe iOS uneori e nevoie de position fixed pe body pentru a preveni scroll-ul din spate,
+      // dar asta poate cauza saltul la top. 'hidden' e de obicei suficient în React modern.
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showModal]);
 
-  // ESC
+  // ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -201,11 +193,7 @@ useEffect(() => {
     });
   };
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setTimeout(() => {
-      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 300);
-  };
+  // AM ȘTERS FUNCȚIA handleFocus() - Aceasta cauza problema cu cursorul!
 
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,142 +261,151 @@ useEffect(() => {
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <div
-        className={`absolute inset-0 bg-slate-900/20 transition-opacity duration-300 ${
-          isMounted ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={onClose}
-      />
+    // SCHIMBARE MAJORĂ CSS: Folosim un container extern cu overflow-y-auto pentru a permite scroll-ul 
+    // atunci când tastatura acoperă ecranul, fără a afecta body-ul paginii.
+    <div className="fixed inset-0 z-[100] overflow-y-auto">
+      
+      {/* Containerul pentru centrare care se asigură că modalul poate fi scrollat */}
+      <div className="flex min-h-full items-center justify-center p-4">
+        
+        {/* BACKDROP - Fixat în spate */}
+        <div
+          className={`fixed inset-0 bg-slate-900/20 transition-opacity duration-300 ${
+            isMounted ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={onClose}
+        />
 
-      <div
-        className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
-        shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
-        border border-white/50 
-        transform transition-all duration-300 
-        ${isMounted ? "translate-x-0 opacity-100" : "-translate-x-50 opacity-0"}`}
-      >
-        <button
-          onClick={() => {
-            setCloseBtnClicked(true);
-            setTimeout(() => {
-              setCloseBtnClicked(false);
-              onClose();
-            }, 150);
-          }}
-          className={`
-            mobile-close-btn 
-            absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
-            text-slate-500 flex items-center justify-center 
-            shadow-[3px_3px_6px_#bec3c9] 
-            transition-all select-none
-            md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
-            md:active:scale-95 md:hover:text-blue-400
-          `}
+        {/* MODALUL - Relativ la containerul flex */}
+        <div
+          className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
+          shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
+          border border-white/50 
+          transform transition-all duration-300 
+          ${isMounted ? "translate-x-0 opacity-100" : "-translate-x-50 opacity-0"}`}
         >
-          ✕
-        </button>
+          <button
+            onClick={() => {
+              setCloseBtnClicked(true);
+              setTimeout(() => {
+                setCloseBtnClicked(false);
+                onClose();
+              }, 150);
+            }}
+            className={`
+              mobile-close-btn 
+              absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
+              text-slate-500 flex items-center justify-center 
+              shadow-[3px_3px_6px_#bec3c9] 
+              transition-all select-none
+              md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
+              md:active:scale-95 md:hover:text-blue-400
+            `}
+          >
+            ✕
+          </button>
 
-        <h3 className="text-2xl font-black text-slate-700 mb-1 select-none">TRIMITE UN EMAIL</h3>
-        <p className="text-xs font-mono text-slate-400 mb-6 uppercase tracking-widest select-none">
-          // SECURE_CONNECTION
-        </p>
+          <h3 className="text-2xl font-black text-slate-700 mb-1 select-none">TRIMITE UN EMAIL</h3>
+          <p className="text-xs font-mono text-slate-400 mb-6 uppercase tracking-widest select-none">
+            // SECURE_CONNECTION
+          </p>
 
-        {status === "SUCCESS" ? (
-          <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4 select-none">
-            <div className="flex flex-col items-center text-green-600">
-              <div className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2">
-                ✓
-              </div>
-              <p className="font-bold text-lg">Mesaj trimis cu succes!</p>
-            </div>
-            <div className="w-full h-px bg-slate-300/50"></div>
-            <div className="flex flex-col items-center">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                Fereastra se închide automat în
-              </p>
-              <div className="text-6xl font-black text-slate-700">{countdown}</div>
-            </div>
-          </div>
-        ) : (
-          <form ref={form} onSubmit={sendEmail} className="space-y-5" noValidate>
-            {["nume", "email", "mesaj"].map((field) => (
-              <div key={field} className="space-y-1">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none !cursor-default">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                  </label>
-                  {errors[field] && <span className={syncPulseClass}>{errors[field]}</span>}
+          {status === "SUCCESS" ? (
+            <div className="flex flex-col items-center justify-center py-10 space-y-6 animate-in fade-in slide-in-from-bottom-4 select-none">
+              <div className="flex flex-col items-center text-green-600">
+                <div className="w-16 h-16 rounded-full bg-[#e0e5ec] shadow-[inset_4px_4px_8px_#bec3c9] flex items-center justify-center text-3xl mb-2">
+                  ✓
                 </div>
-
-                <div className="relative">
-                  {field !== "mesaj" ? (
-                    <input
-                      type={field === "email" ? "email" : "text"}
-                      name={field}
-                      value={formData[field as keyof typeof formData]}
-                      className={inputClass(!!errors[field])}
-                      placeholder={field === "email" ? "contact@email.com" : "Nume"}
-                      onChange={handleInputChange}
-                      onBlur={handleBlur}
-                      onFocus={handleFocus}
-                    />
-                  ) : (
-                    <textarea
-                      name="mesaj"
-                      rows={4}
-                      value={formData.mesaj}
-                      className={inputClass(!!errors.mesaj)}
-                      placeholder="Salut! Te contactez în legătură cu..."
-                      onChange={handleInputChange}
-                      onBlur={handleBlur}
-                      onFocus={handleFocus}
-                    />
-                  )}
-
-                  {errors[field] && (
-                    <div className="absolute right-3 top-3 pointer-events-none">
-                      <WarningIcon shake />
-                    </div>
-                  )}
-                </div>
+                <p className="font-bold text-lg">Mesaj trimis cu succes!</p>
               </div>
-            ))}
+              <div className="w-full h-px bg-slate-300/50"></div>
+              <div className="flex flex-col items-center">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                  Fereastra se închide automat în
+                </p>
+                <div className="text-6xl font-black text-slate-700">{countdown}</div>
+              </div>
+            </div>
+          ) : (
+            <form ref={form} onSubmit={sendEmail} className="space-y-5" noValidate>
+              {["nume", "email", "mesaj"].map((field) => (
+                <div key={field} className="space-y-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-slate-500 ml-1 uppercase select-none !cursor-default">
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </label>
+                    {errors[field] && <span className={syncPulseClass}>{errors[field]}</span>}
+                  </div>
 
-            <button
-              type="submit"
-              disabled={status === "SENDING"}
-              onClick={() => {
-                setEmailBtnClicked(true);
-                setTimeout(() => setEmailBtnClicked(false), 150);
-              }}
-              className={`
-                mobile-submit-gradient
-                w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
-                shadow-[6px_6px_12px_#bec3c9]
-                transition-all flex justify-center items-center gap-2
-                md:active:scale-[0.95]
-                md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
-                ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
-              `}
-            >
-              {status === "SENDING" ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  SE TRIMITE...
-                </>
-              ) : (
-                "TRIMITE"
+                  <div className="relative">
+                    {field !== "mesaj" ? (
+                      <input
+                        type={field === "email" ? "email" : "text"}
+                        name={field}
+                        value={formData[field as keyof typeof formData]}
+                        className={inputClass(!!errors[field])}
+                        placeholder={field === "email" ? "contact@email.com" : "Nume"}
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        // AM SCOS onFocus={handleFocus}
+                      />
+                    ) : (
+                      <textarea
+                        name="mesaj"
+                        rows={4}
+                        value={formData.mesaj}
+                        className={inputClass(!!errors.mesaj)}
+                        placeholder="Salut! Te contactez în legătură cu..."
+                        onChange={handleInputChange}
+                        onBlur={handleBlur}
+                        // AM SCOS onFocus={handleFocus}
+                      />
+                    )}
+
+                    {errors[field] && (
+                      <div className="absolute right-3 top-3 pointer-events-none">
+                        <WarningIcon shake />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="submit"
+                disabled={status === "SENDING"}
+                onClick={() => {
+                  setEmailBtnClicked(true);
+                  setTimeout(() => setEmailBtnClicked(false), 150);
+                }}
+                className={`
+                  mobile-submit-gradient
+                  w-full py-4 rounded-xl font-bold select-none text-white cursor-pointer
+                  shadow-[6px_6px_12px_#bec3c9]
+                  transition-all flex justify-center items-center gap-2
+                  md:active:scale-[0.95]
+                  md:${emailBtnClicked ? "scale-[0.95]" : "scale-100"}
+                  ${status === "SENDING" ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 md:hover:bg-blue-700"}
+                `}
+              >
+                {status === "SENDING" ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    SE TRIMITE...
+                  </>
+                ) : (
+                  "TRIMITE"
+                )}
+              </button>
+
+              {status === "ERROR" && (
+                <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none">
+                  Eroare de sistem. Încearcă pe mail direct.
+                </p>
               )}
-            </button>
-
-            {status === "ERROR" && (
-              <p className="text-xs text-red-500 text-center font-bold bg-red-100 py-2 rounded-lg select-none">
-                Eroare de sistem. Încearcă pe mail direct.
-              </p>
-            )}
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
 
       <style jsx>{`

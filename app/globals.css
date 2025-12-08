@@ -18,7 +18,7 @@ body {
 .fara-scroll {
     overflow: hidden;
     touch-action: none;
-    height: 100vh;  
+    height: 100vh;
 }
 
 ::selection {

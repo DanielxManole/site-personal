@@ -1,50 +1,60 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 export default function HashScroll() {
-  const isInitialLoad = useRef(true);
-
   useEffect(() => {
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
     }
 
-    const scrollToHash = () => {
-      const hash = window.location.hash;
+    // AICI SUNT TIPURILE ADĂUGATE: (targetId: string, behaviorType: ScrollBehavior)
+    const scrollToTarget = (targetId: string, behaviorType: ScrollBehavior) => {
+      const element = document.getElementById(targetId);
+      if (!element) return false;
+
+      const rect = element.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Ajustează 80 cu înălțimea navbar-ului tău
+      const headerOffset = 80; 
+      
+      const absoluteElementTop = rect.top + scrollTop - headerOffset;
+
+      window.scrollTo({
+        top: absoluteElementTop,
+        behavior: behaviorType,
+      });
+
+      return true;
+    };
+
+    const handleInitialScroll = () => {
+      const hash = window.location.hash.replace("#", "");
       if (!hash) return;
 
-      const id = hash.replace("#", "");
-      
       let attempts = 0;
-      const maxAttempts = 60;
+      const maxAttempts = 50;
 
-      const checkElement = () => {
-        const element = document.getElementById(id);
-
-        if (element) {
-          const behavior = isInitialLoad.current ? "auto" : "smooth";
-          
-          element.scrollIntoView({ behavior: behavior, block: "start" });
-          
-          isInitialLoad.current = false;
-        } else {
+      const attemptScroll = () => {
+        const success = scrollToTarget(hash, "auto");
+        
+        if (!success && attempts < maxAttempts) {
           attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(checkElement, 50);
-          }
+          setTimeout(attemptScroll, 50);
         }
       };
 
-      setTimeout(checkElement, 100);
+      setTimeout(attemptScroll, 100);
     };
-
-    scrollToHash();
 
     const handleHashChange = () => {
-        isInitialLoad.current = false; 
-        scrollToHash();
+      const hash = window.location.hash.replace("#", "");
+      if (hash) {
+        scrollToTarget(hash, "smooth");
+      }
     };
 
+    handleInitialScroll();
     window.addEventListener("hashchange", handleHashChange);
 
     return () => {
