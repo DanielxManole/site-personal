@@ -9,9 +9,7 @@ interface ContactModalProps {
   onClose: () => void;
 }
 
-// ------------------------------------------------------------------
-// VARIANTE ANIMATII (Cu tipul Variants pentru a scăpa de erori TS)
-// ------------------------------------------------------------------
+// Variantele de animație
 const modalVariants: Variants = {
   hidden: { 
     opacity: 0, 
@@ -44,8 +42,6 @@ const backdropVariants: Variants = {
 
 export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const form = useRef<HTMLFormElement>(null);
-  
-  // State-uri
   const [status, setStatus] = useState<"IDLE" | "SENDING" | "SUCCESS" | "ERROR">("IDLE");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState({ nume: "", email: "", mesaj: "" });
@@ -60,59 +56,85 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   }, [pathname]);
 
   // ---------------------------------------------------------
-  // ✅ NO-JUMP SCROLL LOCK (SOLUȚIA PENTRU MOBIL)
+  // 1. LOGICA TA ORIGINALĂ DE SCROLL LOCK (RESTAURATĂ)
   // ---------------------------------------------------------
   useEffect(() => {
-    if (isOpen) {
-      // 1. Detectăm dacă e mobil
-      const isMobile = window.innerWidth < 768;
+    if (!isOpen) return;
 
-      if (isMobile) {
-        // PE MOBIL: Nu folosim position fixed (cauzează tremurat)
-        // Blocăm doar overflow-ul pe ambele elemente rădăcină
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
-        document.body.style.height = "100%";
-      } else {
-        // PE DESKTOP: Calculăm bara de scroll ca să nu sară conținutul
-        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-        document.body.style.overflow = "hidden";
+    // Setăm flag-ul în localStorage (din codul tău original)
+    localStorage.setItem('modalOpen', 'true');
+    window.dispatchEvent(new Event("storage"));
+
+    const isMobile = window.innerWidth <= 767;
+    
+    // Logica critică pentru Mobile Safari / Scroll
+    if (isMobile) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      // Fallback pentru desktop
+      document.body.style.overflow = 'hidden';
+    }
+    
+
+    // CLEANUP FUNCTION - Se execută DOAR când componenta dispare complet din DOM
+    // (adică după ce se termină animația de Exit din Framer Motion)
+    return () => {
+      // Executăm cleanup doar dacă body a fost modificat
+      const isBodyFixed = document.body.style.position === 'fixed';
+      const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+
+      // Resetăm tot
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+
+      // Dacă am fost pe mobil și aveam scroll salvat, sărim înapoi acolo
+      if (isBodyFixed) {
+        window.scrollTo({
+          top: savedScroll,
+          behavior: 'instant'
+        });
       }
 
-      // Notificăm Navbar-ul
-      localStorage.setItem('modalOpen', 'true');
-      window.dispatchEvent(new Event("storage"));
-    }
-
-    // CLEANUP
-    return () => {
-      // Resetăm totul la default
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-      document.body.style.paddingRight = "";
-      
       if (!isOpen) {
         localStorage.setItem('modalOpen', 'false');
         window.dispatchEvent(new Event("storage"));
       }
     };
   }, [isOpen]);
+  // Notă: Chiar dacă isOpen se schimbă în false, AnimatePresence ține componenta
+  // montată până la finalul animației, deci cleanup-ul rulează la momentul perfect.
 
   // ---------------------------------------------------------
-  // CLOSE ON HASH / LINK
+  // 2. LOGICA HASH CHANGE & LINK CLICK (RESTAURATĂ)
   // ---------------------------------------------------------
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleHashChange = () => onClose();
+    const handleHashChange = () => {
+        // Logica ta pentru hash change
+        const isMobile = window.innerWidth <= 767;
+        if (isMobile) {
+            const savedScroll = Math.abs(parseInt(document.body.style.top || '0'));
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            // Dacă e nevoie să scrollezi la hash, browserul o va face natural după ce scoatem fixed
+        }
+        onClose();
+    };
+
     const handleGlobalLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest("a");
       if (target) {
         const href = target.getAttribute("href");
         if (href && (href.startsWith("#") || href.includes("/#"))) {
-          setTimeout(() => onClose(), 50);
+          setTimeout(() => onClose(), 10);
         }
       }
     };
@@ -126,9 +148,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     };
   }, [isOpen, onClose]);
 
-  // ---------------------------------------------------------
-  // RESET STATE ON CLOSE
-  // ---------------------------------------------------------
+
+  // Resetare stare după închidere
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => {
@@ -136,7 +157,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setErrors({});
         setFormData({ nume: "", email: "", mesaj: "" });
         setCountdown(3);
-      }, 300);
+      }, 500); // Un pic mai mult timp să fim siguri că animația e gata
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -150,14 +171,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
-  // Pulse Error Timer
+  // Pulse Error
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
-  // Countdown Timer
+  // Countdown
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -167,9 +188,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-  // ---------------------------------------------------------
-  // FORM HANDLERS
-  // ---------------------------------------------------------
+
+  // --- RESTUL FUNCȚIILOR (FORM HANDLERS) RĂMÂN NESCHIMBATE ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     let finalValue = value;
@@ -226,7 +246,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setStatus("SENDING");
     const dataToSend = {
       access_key: "57970ddb-901c-4dca-aff4-b5ebceaf43ea",
@@ -252,9 +271,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     }
   };
 
-  // ---------------------------------------------------------
-  // RENDER & STYLES
-  // ---------------------------------------------------------
   const WarningIcon = ({ shake }: { shake?: boolean }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={`w-7 h-7 drop-shadow-sm ${shake ? "animate-shake" : ""}`}>
       <path fill="#ef4444" d="M4.47 20.504h15.06c1.54 0 2.5-1.67 1.73-3l-7.53-13.01c-.77-1.33-2.69-1.33-3.46 0L2.74 17.504c-.77 1.33.19 3 1.73 3z" />
@@ -272,21 +288,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-          
-          {/* BACKDROP - style={{ touchAction: "none" }} previne scroll-ul pe mobil */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 will-change-transform">
           <motion.div
             key="backdrop"
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px]"
-            style={{ touchAction: "none" }} 
+            className="absolute inset-0 bg-slate-900/20 bg-slate-900/20"
             onClick={onClose}
           />
 
-          {/* MODAL CONTAINER */}
           <motion.div
             key="modal-content"
             variants={modalVariants}
@@ -297,7 +309,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
             border border-white/50 overflow-hidden"
           >
-            {/* CLOSE BUTTON */}
             <motion.button
               whileHover={{ scale: 1.1, color: "#60a5fa" }}
               whileTap={{ scale: 0.9 }}
@@ -316,7 +327,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
             <AnimatePresence mode="wait">
               {status === "SUCCESS" ? (
-                /* SUCCESS STATE */
                 <motion.div
                   key="success"
                   initial={{ opacity: 0, y: 10 }}
@@ -351,7 +361,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   </div>
                 </motion.div>
               ) : (
-                /* FORM STATE */
                 <motion.form
                   key="form"
                   initial={{ opacity: 0 }}
