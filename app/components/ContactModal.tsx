@@ -18,17 +18,18 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   const [shouldRender, setShouldRender] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
   const [emailBtnClicked, setEmailBtnClicked] = useState(false);
   const [closeBtnClicked, setCloseBtnClicked] = useState(false);
 
   const pathname = usePathname();
 
-  // --- LOGICA DE STATE ȘI LIFESTYLE (Aceasta era bună, o păstrăm) ---
-
+  // 1. Reset la schimbarea rutei
   useEffect(() => {
     if (isOpen) onClose();
   }, [pathname]);
 
+  // 2. Închide la hash change
   useEffect(() => {
     const handleHashChange = () => {
       if (isOpen) onClose();
@@ -37,11 +38,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, [isOpen, onClose]);
 
+  // 3. Animație și Randare
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+
     if (isOpen) {
       setShouldRender(true);
-      // Dublu requestAnimationFrame pentru a garanta randarea înainte de tranziție
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
@@ -57,22 +59,31 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         setCountdown(3);
       }, 300);
     }
+
     return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  // SCROLL LOCK - SIMPLIFICAT LA MAXIMUM
-  // Doar overflow hidden pe body e suficient în 2024 pentru majoritatea cazurilor
+  // 4. SCROLL LOCK (Doar pe Body) - Fără touchAction pe mobile pentru tastatura
   useEffect(() => {
     if (shouldRender) {
+      const isMobile = window.innerWidth < 768;
       document.body.style.overflow = 'hidden';
+      // Nu blocăm touchAction pe mobile pentru a permite scroll când e tastatura deschisă
+      if (!isMobile) {
+        document.body.style.touchAction = 'none'; 
+      }
     } else {
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     }
+
     return () => {
       document.body.style.overflow = '';
+      document.body.style.touchAction = '';
     };
   }, [shouldRender]);
 
+  // ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -81,12 +92,14 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, onClose]);
 
+  // Pulse Error
   useEffect(() => {
     if (!isOpen) return;
     const interval = setInterval(() => setPulseHigh((prev) => !prev), 1000);
     return () => clearInterval(interval);
   }, [isOpen]);
 
+  // Countdown
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === "SUCCESS" && isOpen) {
@@ -96,7 +109,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     return () => clearTimeout(timer);
   }, [status, countdown, isOpen, onClose]);
 
-  // --- LOGICA DE FORMULAR ---
+  if (!shouldRender) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -105,6 +118,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     if (name === "mesaj") finalValue = value.charAt(0).toUpperCase() + value.slice(1);
 
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
+
     if (errors[name]) {
       setErrors((prev) => {
         const newErr = { ...prev };
@@ -137,6 +151,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const error = getFieldError(name, value);
+
     setErrors((prev) => {
       const newErr = { ...prev };
       if (error) newErr[name] = error;
@@ -148,7 +163,9 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     setStatus("SENDING");
+
     const dataToSend = {
       access_key: "57970ddb-901c-4dca-aff4-b5ebceaf43ea",
       name: formData.nume,
@@ -162,73 +179,74 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: JSON.stringify(dataToSend),
       });
+
       const result = await response.json();
-      if (result.success) setStatus("SUCCESS");
-      else setStatus("ERROR");
+
+      if (result.success) {
+        setStatus("SUCCESS");
+      } else {
+        console.error("Web3Forms Error:", result);
+        setStatus("ERROR");
+      }
     } catch (error) {
       console.error("Network Error:", error);
       setStatus("ERROR");
     }
   };
 
-  // --- COMPONENTE UI ---
-
   const WarningIcon = ({ shake }: { shake?: boolean }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={`w-7 h-7 drop-shadow-sm ${shake ? "animate-shake" : ""}`}>
-      <path fill="#ef4444" d="M4.47 20.504h15.06c1.54 0 2.5-1.67 1.73-3l-7.53-13.01c-.77-1.33-2.69-1.33-3.46 0L2.74 17.504c-.77 1.33.19 3 1.73 3z" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      className={`w-7 h-7 drop-shadow-sm ${shake ? "animate-shake" : ""}`}
+    >
+      <path
+        fill="#ef4444"
+        d="M4.47 20.504h15.06c1.54 0 2.5-1.67 1.73-3l-7.53-13.01c-.77-1.33-2.69-1.33-3.46 0L2.74 17.504c-.77 1.33.19 3 1.73 3z"
+      />
       <path fill="#fff" d="M12 14a1 1 0 0 1-1-1v-2.5a1 1 0 0 1 2 0V13a1 1 0 0 1-1 1zm0 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
     </svg>
   );
 
-  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out select-none ${pulseHigh ? "opacity-100" : "opacity-40"}`;
-  
+  const syncPulseClass = `text-[10px] text-red-500 font-mono font-bold transition-opacity duration-1000 ease-in-out select-none ${
+    pulseHigh ? "opacity-100" : "opacity-40"
+  }`;
+
   const inputClass = (hasError: boolean) =>
     `select-none w-full bg-[#e0e5ec] border-none rounded-xl pl-4 pr-10 py-3 text-slate-700 font-medium outline-none
      shadow-[inset_3px_3px_6px_#bec3c9] 
      focus:shadow-[inset_4px_4px_8px_#b1b5b9]
-     placeholder:text-slate-400 
+     transition-all placeholder:text-slate-400 
      ${hasError ? "animate-shake border-red-500" : ""}`;
 
-  if (!shouldRender) return null;
-
   return (
-    // FIX SUPREM: Container fix care ocupă tot ecranul și are scroll propriu
-    <div className="fixed inset-0 z-[100] overflow-y-auto overflow-x-hidden bg-slate-900/20 backdrop-blur-xs"
-         // Atribuim eventul de click pe fundal aici
-         onClick={(e) => {
-           if (e.target === e.currentTarget) onClose();
-         }}
-    >
+    <div className="fixed inset-0 z-[100] md:overflow-y-auto h-full w-screen overscroll-contain">
       
-      {/* LAYOUT CONTAINER
-         - Pe mobil: min-h-full, dar NU items-center. Folosim 'pt-12' și 'pb-96'.
-           pb-96 (padding bottom imens) este trucul. Creează spațiu gol sub formular
-           astfel încât când tastatura urcă, browserul are loc să facă scroll.
-         - Pe desktop (md): items-center, padding normal.
-      */}
-      <div className={`
-        min-h-full w-full 
-        flex flex-col items-center justify-start md:justify-center
-        p-4 pt-40 pb-96 md:py-10
-        transition-all duration-300
-      `}>
-
-        {/* MODAL CARD */}
+      {/* Container Flex: items-start pe mobil (ca să nu sară la mijloc), items-center pe desktop */}
+      <div className="flex min-h-full w-full items-start justify-center p-4 pt-30 md:items-center md:pt-4 md:overflow-y-auto">
+        
+        {/* BACKDROP */}
         <div
-          // Oprim propagarea click-ului ca să nu se închidă modalul când dai click pe el
-          onClick={(e) => e.stopPropagation()}
-          className={`
-            relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
-            shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
-            border border-white/50 
-            transition-all duration-300 ease-out
-            ${isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"}
-          `}
+          className={`fixed inset-0 bg-slate-900/20 transition-opacity duration-300 ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={onClose}
+        />
+
+        {/* MODAL */}
+        <div
+          className={`relative w-full max-w-md bg-[#e0e5ec] p-8 rounded-2xl 
+          shadow-[20px_20px_60px_#bec3c9,-20px_-20px_60px_rgba(255,255,255,0.5)]
+          border border-white/50 
+          transform transition-all duration-300 mb-20
+          ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-10 opacity-0"}`}
         >
-          {/* Close Button */}
           <button
             onClick={() => {
               setCloseBtnClicked(true);
@@ -238,10 +256,11 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               }, 150);
             }}
             className={`
+              mobile-close-btn 
               absolute top-4 right-4 w-8 h-8 rounded-full bg-[#e0e5ec] 
               text-slate-500 flex items-center justify-center 
               shadow-[3px_3px_6px_#bec3c9] 
-              transition-all select-none cursor-pointer
+              transition-all select-none
               md:${closeBtnClicked ? "scale-[0.95]" : "scale-100"}
               md:active:scale-95 md:hover:text-blue-400
             `}
@@ -303,6 +322,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                         onBlur={handleBlur}
                       />
                     )}
+
                     {errors[field] && (
                       <div className="absolute right-3 top-3 pointer-events-none">
                         <WarningIcon shake />
@@ -368,6 +388,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             font-size: 16px !important;
           }
 
+          /* Fix pentru cursor care sare pe mobile când tastatura e deschisă */
+          input:focus, textarea:focus {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+          }
+
           .mobile-submit-gradient {
             background-image: linear-gradient(45deg, #1d4ed8 0%, #2563eb 51%, #1d4ed8 100%) !important;
             background-size: 200% auto !important;
@@ -375,7 +401,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             color: white !important;
             border: none !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15) !important;
-            transition: background-position 0.5s ease, transform 0.1s ease !important;
+            transition: background-position 0.5s ease !important;
             transform: none !important;
             -webkit-tap-highlight-color: transparent;
           }
@@ -390,6 +416,20 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
              background-image: none !important;
              cursor: not-allowed !important;
              box-shadow: none !important;
+          }
+
+          .mobile-close-btn {
+            transform: none !important;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.1s ease !important;
+          }
+          .mobile-close-btn:active {
+            color: #ef4444 !important; 
+            opacity: 0.7 !important;
+          }
+          .mobile-close-btn:hover {
+            transform: none !important;
+            color: #64748b; 
           }
         }
       `}</style>
