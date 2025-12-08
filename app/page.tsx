@@ -12,14 +12,6 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-useEffect(() => {
-    const hasHash = window.location.hash.length > 0;
-    if (!sessionStorage.getItem("first-visit") && !hasHash) {
-      window.scrollTo(0, 0);
-      sessionStorage.setItem("first-visit", "true");
-    }
-  }, []);
-
   useEffect(() => {
     const updateSize = () => {
       if (heroRef.current) {

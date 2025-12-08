@@ -54,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ro" className="scroll-smooth bg-[#e0e5ec]"> 
+    <html lang="ro" className="bg-[#e0e5ec]"> 
       
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} bg-[#e0e5ec] min-h-screen antialiased opacity-0 fade-in-on-load`}>
         <HashScroll />
